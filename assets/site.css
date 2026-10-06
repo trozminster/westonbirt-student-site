@@ -177,7 +177,7 @@ math mo,math mi,math mn{font-family:inherit}
 .lrow.shut{color:#8C847A}.lrow.shut .i,.lrow.shut .w{color:#8C847A}.lrow.shut .t{font-weight:400}
 .chip{justify-self:start;font-size:12px;font-weight:800;border-radius:999px;padding:4px 10px}
 .c-today{background:#DCA83C;color:#2B2823}.c-done{background:#F3E6E7;color:#5B1A24}.c-open{background:#FBF1DC;color:#6B4A07}
-.c-soon{background:#ECE8E1;color:#5E5850}.card.soon .kick{color:#5B1A24}
+.c-soon{background:#ECE8E1;color:#5E5850}.c-extra{background:#ECE8E1;color:#5B1A24}.card.soon .kick{color:#5B1A24}
 .c-lock{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:800}
 /* PIN pad */
 .pinbg{position:fixed;inset:0;background:rgba(43,40,35,.55);display:flex;align-items:center;justify-content:center;padding:16px;z-index:10}

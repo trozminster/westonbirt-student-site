@@ -80,7 +80,8 @@
   if (kind === 'lesson') {
     var date = document.body.getAttribute('data-date'), today = todayISO();
     var lesson = document.getElementById('lesson'), lock = document.getElementById('lockscreen');
-    var future = !date || date > today;
+    var extra = document.body.getAttribute('data-extra') === '1';   // Card KQ: cut from the schedule, never locked
+    var future = !extra && (!date || date > today);
     if (future && !unlocked()) {
       lesson.hidden = true; lock.hidden = false;
       var yr = document.body.getAttribute('data-year');
@@ -150,7 +151,7 @@
   }
 
   // ================= HOME =================
-  function lessonsOf(y) { var out = []; y.topics.forEach(function (t) { t.lessons.forEach(function (l) { out.push({ id: l[0], title: l[1], date: l[2], topic: t.title, tn: t.n, soon: !!l[3] }); }); }); return out; }
+  function lessonsOf(y) { var out = []; y.topics.forEach(function (t) { t.lessons.forEach(function (l) { out.push({ id: l[0], title: l[1], date: l[2], topic: t.title, tn: t.n, soon: !!l[3], extra: !!l[4] }); }); }); return out; }
   var tl = document.getElementById('todaylab'); if (tl) tl.textContent = 'Today \u00B7 ' + fmt(todayISO());
   if (kind === 'home') {
     var yds = JSON.parse(document.getElementById('homedata').textContent), T = todayISO();
@@ -186,18 +187,21 @@
       }).join('') : '<span class="w">Nothing to catch up on yet.</span>') + '</div></div>';
       h += '<h2 class="yh2">The year, topic by topic</h2><div class="topics">';
       Y.topics.forEach(function (t, ti) {
-        var states = t.lessons.map(function (l) { return !l[2] ? 'future' : (l[2] < T ? 'done' : (l[2] === T ? 'today' : 'future')); });
-        var allF = states.every(function (s) { return s === 'future'; }), allD = states.every(function (s) { return s === 'done'; });
+        var states = t.lessons.map(function (l) { return l[4] ? 'extra' : (!l[2] ? 'future' : (l[2] < T ? 'done' : (l[2] === T ? 'today' : 'future'))); });
+        var core = states.filter(function (s) { return s !== 'extra'; }), firstD = (t.lessons.filter(function (l) { return !l[4]; })[0] || t.lessons[0])[2];
+        var allF = core.every(function (s) { return s === 'future'; }), allD = core.every(function (s) { return s === 'done'; });
         var ex = expanded[ti] !== undefined ? expanded[ti] : (t.n === curTopic);
-        var sub = t.lessons.length + (t.lessons.length === 1 ? ' lesson' : ' lessons') + ' \u00B7 ' + (allD ? 'done' : (allF ? 'starts ' + fmt(t.lessons[0][2]) : 'in progress'));
+        var sub = t.lessons.length + (t.lessons.length === 1 ? ' lesson' : ' lessons') + ' \u00B7 ' + (allD ? 'done' : (allF ? 'starts ' + fmt(firstD) : 'in progress'));
         var badge = allF && !un ? 'b-future' : (allD ? 'b-done' : 'b-now');
         h += '<div class="tp"><button class="tprow" type="button" data-t="' + ti + '" aria-expanded="' + ex + '"><span class="badge ' + badge + '">' + esc(t.n) + '</span>' +
           '<span class="tpt"><span class="a' + (allF && !un ? ' mute' : '') + '">' + esc(t.title) + '</span><span class="b">' + sub + '</span></span>' +
-          '<span class="pips">' + states.map(function (s) { return '<span class="pip ' + (s === 'done' ? 'done' : (s === 'today' ? 'today' : '')) + '"></span>'; }).join('') + '</span>' +
+          '<span class="pips">' + core.map(function (s) { return '<span class="pip ' + (s === 'done' ? 'done' : (s === 'today' ? 'today' : '')) + '"></span>'; }).join('') + '</span>' +
           '<span class="chev">' + (ex ? '\u2212' : '+') + '</span></button>';
         if (ex) {
           h += '<div class="lsn">' + t.lessons.map(function (l, i) {
             var s = states[i], open = s !== 'future' || un;
+            if (s === 'extra') return '<a class="lrow" href="' + esc(l[0]) + '.html"><span class="i">' + esc(l[0]) + '</span><span class="t">' + esc(l[1]) + '</span><span class="w">Extra</span>' +
+              '<span class="chip c-extra">Extra — not taught in class</span></a>';
             if (open) return '<a class="lrow" href="' + esc(l[0]) + '.html"><span class="i">' + esc(l[0]) + '</span><span class="t">' + esc(l[1]) + '</span><span class="w">' + fmt(l[2]) + '</span>' +
               '<span class="chip ' + (l[3] ? 'c-soon' : (s === 'today' ? 'c-today' : (s === 'done' ? 'c-done' : 'c-open'))) + '">' + (l[3] ? 'Coming soon' : (s === 'today' ? 'Today' : (s === 'done' ? 'Done' : 'Open'))) + '</span></a>';
             return '<button class="lrow shut" type="button" data-lock="' + esc(l[0]) + '"><span class="i">' + esc(l[0]) + '</span><span class="t">' + esc(l[1]) + '</span><span class="w">' + fmt(l[2]) + '</span>' +
