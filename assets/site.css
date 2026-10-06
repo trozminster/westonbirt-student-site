@@ -100,6 +100,8 @@ math mo,math mi,math mn{font-family:inherit}
 .lg .w{grid-column:2/-1;text-align:left;white-space:nowrap}
 .lg .step math{font-size:20px}
 .lg .step.text .wide{grid-column:1/-1;font-size:16px;line-height:1.5;white-space:normal;min-width:0}
+.lg .step .note{grid-column:1/-1;font-size:14px;line-height:1.45;color:#6B5E52;font-style:italic;margin-top:4px;white-space:normal;min-width:0}
+.lg .step .note math{font-size:16px}
 .lg .step.hair:not([hidden]){border-top:1.5px solid #B9A994}
 .lg .step.chk:not([hidden]){margin-top:14px}
 .lg .step.ansrow .cue,.lg .step.cueans .cue{color:#5B1A24}
