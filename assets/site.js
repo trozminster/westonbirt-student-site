@@ -39,6 +39,7 @@
   }
   // ---- PIN pad
   var LOCK_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>';
+  var LOGO_IMG = '<img class="logo" src="../assets/westonbirt_logo.png" alt="Westonbirt School" width="121" height="80" decoding="async">';   // Card KP job 6 (year pages sit one folder down)
   function openPin(onOk) {
     var pin = '', bg = document.createElement('div');
     bg.className = 'pinbg';
@@ -174,8 +175,8 @@
       var curTopic = feature ? feature.tn : (Y.topics[0] ? Y.topics[0].n : null);
       var h = '<div style="padding-top:28px"><a class="back" href="../index.html">\u2190 Change year</a></div>';
       h += '<section class="yhead"><div><div class="yk">' + esc(Y.name) + ' \u00B7 Maths</div><h1>' + esc(Y.short) + ' lessons</h1></div>' +
-        (un ? '<div class="pill"><span>Teacher view \u00B7 every lesson open</span><button class="dark" type="button" id="relock">Lock again</button></div>'
-            : '<button class="unl" type="button" id="openpin">' + LOCK_SVG + ' Teacher unlock</button>') + '</section>';
+        '<div class="yside">' + LOGO_IMG + (un ? '<div class="pill"><span>Teacher view \u00B7 every lesson open</span><button class="dark" type="button" id="relock">Lock again</button></div>'
+            : '<button class="unl" type="button" id="openpin">' + LOCK_SVG + ' Teacher unlock</button>') + '</div></section>';
       h += '<div class="feat">';
       if (feature) h += '<a class="today" href="' + esc(feature.id) + '.html"><span class="tk">' + (td ? 'TODAY\u2019S LESSON' : 'LATEST LESSON') + '</span>' +
         '<span class="tid">' + esc(feature.id) + ' \u00B7 ' + esc(feature.topic) + '</span><span class="tt">' + esc(feature.title) + '</span><span class="go">Open lesson \u2192</span></a>';
