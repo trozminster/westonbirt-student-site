@@ -19,7 +19,7 @@ math mo,math mi,math mn{font-family:inherit}
    font-size:math, which an engine without math-depth ignores (a full-size, floating 2) */
 msup>:not(:first-child),msub>:not(:first-child),msubsup>:not(:first-child),mroot>:last-child{font-size:71%}
 .mp{white-space:nowrap}
-.qlist{margin:0;padding-left:1.6em;display:flex;flex-direction:column;gap:6px}.qlist>li::marker{font-weight:800;color:#5B1A24}.tq .qlist>li::marker,.ans.dark .qlist>li::marker,.exitans .qlist>li::marker{color:#DCA83C}
+.qtail{margin:6px 0 0}.qlist{margin:0;padding-left:1.6em;display:flex;flex-direction:column;gap:6px}.qlist>li::marker{font-weight:800;color:#5B1A24}.tq .qlist>li::marker,.ans.dark .qlist>li::marker,.exitans .qlist>li::marker{color:#DCA83C}
 .al{display:grid;grid-template-columns:minmax(0,max-content) auto minmax(0,1fr);align-items:baseline;row-gap:4px}
 .al .all{grid-column:1;text-align:right;white-space:nowrap}.al .ale{grid-column:2}.al .ale math{padding:0 .2778em}
 .al .alr{grid-column:3;text-align:left;white-space:nowrap;overflow-x:auto}.al .alw{grid-column:1/-1;text-align:left}
