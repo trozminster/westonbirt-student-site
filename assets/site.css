@@ -133,7 +133,7 @@ msup>:not(:first-child),msub>:not(:first-child),msubsup>:not(:first-child),mroot
 .opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 /* Card KS S4: a CFU whose options run long (over 30 characters drawn) takes one option per row; any still too wide
    for its button scrolls inside it */
-.opts:has(.opt.wide){grid-template-columns:1fr}.opt{min-width:0;overflow-x:auto}
+.opts.wide{grid-template-columns:1fr}.opt{min-width:0;overflow-x:auto}
 .opt{text-align:left;border-radius:12px;padding:12px 14px;min-height:48px;font-size:15px;color:#2B2823;background:#FFF;border:1.5px solid #DDD3C4}
 .opt:hover{border-color:#5B1A24}.ol{font-weight:800;margin-right:8px}
 .opt.right{background:#E3F2E9;border-color:#1F6B45;color:#16452C}.opt.wrong{background:#FBEADF;border-color:#B3541E;color:#6B2E09}
