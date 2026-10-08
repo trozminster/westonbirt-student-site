@@ -94,7 +94,7 @@
     }
     if (future && unlocked()) {
       var tb = document.createElement('div'); tb.className = 'teacherbar';
-      tb.innerHTML = '<div class="pill"><span>Teacher view \u00B7 not taught yet</span><button class="dark" type="button">Lock again</button></div>';
+      tb.innerHTML = '<div class="pill"><span>Teacher view \u00B7 not taught yet</span><button class="lockbtn" type="button">Lock again</button></div>';
       tb.querySelector('button').addEventListener('click', function () { sset(UNLOCK, null); location.reload(); });
       lesson.parentNode.insertBefore(tb, lesson);
     }
@@ -176,7 +176,7 @@
       var curTopic = feature ? feature.tn : (Y.topics[0] ? Y.topics[0].n : null);
       var h = '<div style="padding-top:28px"><a class="back" href="../index.html">\u2190 Change year</a></div>';
       h += '<section class="yhead"><div><div class="yk">' + esc(Y.name) + ' \u00B7 Maths</div><h1>' + esc(Y.short) + ' lessons</h1></div>' +
-        '<div class="yside">' + LOGO_IMG + (un ? '<div class="pill"><span>Teacher view \u00B7 every lesson open</span><button class="dark" type="button" id="relock">Lock again</button></div>'
+        '<div class="yside">' + LOGO_IMG + (un ? '<div class="pill"><span>Teacher view \u00B7 every lesson open</span><button class="lockbtn" type="button" id="relock">Lock again</button></div>'
             : '<button class="unl" type="button" id="openpin">' + LOCK_SVG + ' Teacher unlock</button>') + '</div></section>';
       h += '<div class="feat">';
       if (feature) h += '<a class="today" href="' + esc(feature.id) + '.html"><span class="tk">' + (td ? 'TODAY\u2019S LESSON' : 'LATEST LESSON') + '</span>' +
@@ -195,7 +195,7 @@
         var badge = allF && !un ? 'b-future' : (allD ? 'b-done' : 'b-now');
         h += '<div class="tp"><button class="tprow" type="button" data-t="' + ti + '" aria-expanded="' + ex + '"><span class="badge ' + badge + '">' + esc(t.n) + '</span>' +
           '<span class="tpt"><span class="a' + (allF && !un ? ' mute' : '') + '">' + esc(t.title) + '</span><span class="b">' + sub + '</span></span>' +
-          '<span class="pips">' + core.map(function (s) { return '<span class="pip ' + (s === 'done' ? 'done' : (s === 'today' ? 'today' : '')) + '"></span>'; }).join('') + '</span>' +
+          '<span class="pips">' + core.map(function (s) { return '<span class="pip ' + (s === 'done' ? 'done' : (s === 'today' ? 'now' : '')) + '"></span>'; }).join('') + '</span>' +
           '<span class="chev">' + (ex ? '\u2212' : '+') + '</span></button>';
         if (ex) {
           h += '<div class="lsn">' + t.lessons.map(function (l, i) {

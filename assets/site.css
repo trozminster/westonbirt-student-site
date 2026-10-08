@@ -15,6 +15,13 @@ button:focus-visible,a:focus-visible{outline:3px solid #DCA83C;outline-offset:2p
 .fs{letter-spacing:-.12em}
 math{font-family:'Latin Modern Math','Cambria Math','STIX Two Math',math;font-size:1.12em;math-style:normal}
 math mo,math mi,math mn{font-family:inherit}
+/* Card KS S4 (OLE, 8 Oct, 10H.15.1): a script is script-size in every engine -- said here, not left to the UA's
+   font-size:math, which an engine without math-depth ignores (a full-size, floating 2) */
+msup>:not(:first-child),msub>:not(:first-child),msubsup>:not(:first-child),mroot>:last-child{font-size:71%}
+.mp{white-space:nowrap}
+.al{display:grid;grid-template-columns:minmax(0,max-content) auto minmax(0,1fr);align-items:baseline;row-gap:4px}
+.al .all{grid-column:1;text-align:right;white-space:nowrap}.al .ale{grid-column:2}.al .ale math{padding:0 .2778em}
+.al .alr{grid-column:3;text-align:left;white-space:nowrap;overflow-x:auto}.al .alw{grid-column:1/-1;text-align:left}
 .top{background:#5B1A24;color:#FFF}
 .bar{max-width:1120px;margin:0 auto;padding:14px 24px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
 .crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-weight:800;letter-spacing:.08em;font-size:13px;text-transform:uppercase}
@@ -89,18 +96,26 @@ math mo,math mi,math mn{font-family:inherit}
 .ex{padding:24px;gap:14px}.exhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 .exq{font-size:18px;line-height:1.5;font-weight:600}
 .lscroll{overflow-x:auto;max-width:100%}
-.steps.lg{display:grid;grid-template-columns:minmax(80px,max-content) auto auto minmax(0,1fr);column-gap:0;align-items:baseline}
+/* Card KS S4 (OLE, 8 Oct 19:42, 10H.7.2 and 8Ma2 8.2.1): the maths block is CENTRED between the cue's hairline and the
+   card's edge (two 1fr spacers round l | = | r); the hairline is the row's own ::before in the first spacer, full row
+   height; a prose row (.wp) wraps from the hairline; a maths cell too wide for the card scrolls inside itself, so the
+   cue column is never clipped; `=` has relation spacing on both sides in every engine. */
+.steps.lg{display:grid;grid-template-columns:minmax(80px,max-content) minmax(14px,1fr) minmax(0,max-content) auto minmax(0,max-content) minmax(0,1fr);column-gap:0;align-items:baseline}
+.lg .step>*{grid-row:1}
+.lg .step::before{content:"";grid-column:2;grid-row:1;align-self:stretch;border-left:1px solid #E4DACB}
+.lg .step.text::before{display:none}
 .lg .step{display:grid;grid-template-columns:subgrid;grid-column:1/-1;align-items:baseline;padding:8px 0;border-top:1px solid #EFE8DD}
 .lg .step[hidden]{display:grid;visibility:hidden;height:0;padding:0;border:0;overflow:hidden}
 .lg .cue{grid-column:1;font-weight:800;font-size:14px;padding-right:14px;max-width:260px}
-.lg .l,.lg .w{border-left:1px solid #E4DACB;padding-left:14px}
-.lg .l{grid-column:2;text-align:right;white-space:nowrap}
-.lg .e{grid-column:3;text-align:center;white-space:nowrap}
-.lg .r{grid-column:4;text-align:left;white-space:nowrap}
-.lg .w{grid-column:2/-1;text-align:left;white-space:nowrap}
+.lg .l{grid-column:3;text-align:right;white-space:nowrap;overflow-x:auto}
+.lg .e{grid-column:4;text-align:center;white-space:nowrap}
+.lg .e math{padding:0 .2778em}
+.lg .r{grid-column:5;text-align:left;white-space:nowrap;overflow-x:auto}
+.lg .w{grid-column:3/6;text-align:left;white-space:nowrap;overflow-x:auto}
+.lg .w.wp{grid-column:2/-1;white-space:normal;overflow-x:visible;padding-left:14px;min-width:0;line-height:1.5}
 .lg .step math{font-size:20px}
 .lg .step.text .wide{grid-column:1/-1;font-size:16px;line-height:1.5;white-space:normal;min-width:0}
-.lg .step .note{grid-column:1/-1;font-size:14px;line-height:1.45;color:#6B5E52;font-style:italic;margin-top:4px;white-space:normal;min-width:0}
+.lg .step .note{grid-column:1/-1;grid-row:2;font-size:14px;line-height:1.45;color:#6B5E52;font-style:italic;margin-top:4px;white-space:normal;min-width:0}
 .lg .step .note math{font-size:16px}
 .lg .step.hair:not([hidden]){border-top:1.5px solid #B9A994}
 .lg .step.chk:not([hidden]){margin-top:14px}
@@ -134,7 +149,7 @@ math mo,math mi,math mn{font-family:inherit}
 .lockscreen p{margin:0;font-size:17px;line-height:1.5;color:#4A443E}
 .pill{display:inline-flex;align-items:center;gap:12px;background:#FBF1DC;border-radius:999px;padding:8px 8px 8px 16px}
 .pill span{font-size:13px;font-weight:800;color:#6B4A07}
-.dark{border:0;border-radius:999px;background:#2B2823;color:#FFF;font-weight:800;font-size:13px;padding:8px 14px;min-height:40px}
+.lockbtn{border:0;border-radius:999px;background:#2B2823;color:#FFF;font-weight:800;font-size:13px;padding:8px 14px;min-height:40px}
 .unl{display:inline-flex;align-items:center;gap:8px;border:1.5px solid #CFC5B5;border-radius:999px;background:#FFF;color:#2B2823;font-weight:800;font-size:13px;padding:10px 16px;min-height:44px}
 .teacherbar{max-width:1120px;margin:12px auto 0;padding:0 24px}
 /* home and year */
@@ -170,7 +185,7 @@ math mo,math mi,math mn{font-family:inherit}
 .tpt{display:flex;flex-direction:column;gap:3px;min-width:0}.tpt .a{font-size:17px;font-weight:800}.tpt .b{font-size:13px;color:#5E5750}
 .tpt .a.mute{color:#8C847A}
 .pips{display:flex;gap:4px;flex-wrap:wrap;max-width:160px}.pip{width:10px;height:10px;border-radius:999px;background:#E6DFD3}
-.pip.done{background:#5B1A24}.pip.today{background:#DCA83C}.chev{font-size:18px;color:#5E5750}
+.pip.done{background:#5B1A24}.pip.now{background:#DCA83C}.chev{font-size:18px;color:#5E5750}
 .lsn{padding:0 22px 14px 84px;display:flex;flex-direction:column;gap:2px}
 .lrow{width:100%;text-align:left;border:0;background:transparent;display:grid;grid-template-columns:64px minmax(0,1fr) 110px 92px;gap:12px;align-items:center;padding:10px;border-radius:10px;color:#2B2823;min-height:44px;text-decoration:none;font-size:15px}
 .lrow:hover{background:#FBF8F3}.lrow .i{font-size:13px;font-weight:800;color:#5B1A24}.lrow .t{font-weight:600}.lrow .w{font-size:13px;color:#5E5750}
@@ -195,7 +210,7 @@ math mo,math mi,math mn{font-family:inherit}
 .wsq{display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px;padding:12px 0 72px;border-bottom:1px solid #EFE8DD;font-size:16px;line-height:1.5}
 @media print{.noprint{display:none}.sheetpage{padding:0}body{background:#FFF}}
 @media (max-width:640px){.bar{padding:12px 16px}.wrap{padding:0 16px 72px}.opts{grid-template-columns:1fr}
-.steps.lg{grid-template-columns:0 auto auto minmax(0,1fr)}.lg .cue{grid-column:2/-1;max-width:none;padding:0 0 4px}
-.lg .l,.lg .w{border-left:0;padding-left:0}.lsn{padding:0 12px 12px 12px}.lrow{grid-template-columns:56px minmax(0,1fr);}
+.steps.lg{grid-template-columns:0 0 minmax(0,max-content) auto minmax(0,max-content) minmax(0,1fr)}.lg .step>*{grid-row:2}.lg .step::before{display:none}
+.lg .cue{grid-column:2/-1;grid-row:1;max-width:none;padding:0 0 4px}.lg .step .note{grid-row:3}.lg .w.wp{padding-left:0}.lg .step.text .wide{grid-row:1}.lsn{padding:0 12px 12px 12px}.lrow{grid-template-columns:56px minmax(0,1fr);}
 .lrow .w,.lrow .chip,.lrow .c-lock{grid-column:2}.tprow{grid-template-columns:44px minmax(0,1fr) 20px;padding:14px 16px}.pips{display:none}
 .exit{padding:22px}.track{width:100px}}
