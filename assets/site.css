@@ -78,6 +78,8 @@ msup>:not(:first-child),msub>:not(:first-child),msubsup>:not(:first-child),mroot
 .wsl a{color:#5B1A24;font-weight:700;text-decoration:underline;text-underline-offset:3px}.wsl a:hover{color:#2B2823}
 .pmgo{text-decoration:none;display:inline-flex;align-items:center}
 .fits{margin-top:20px;text-decoration:none;color:#2B2823;max-width:640px}.fits p{margin:0;font-size:15px;color:#4A443E}.fits:hover{box-shadow:0 8px 24px rgba(43,40,35,.10)}
+/* Card KS S4: a true maths line too wide for its card (a matrix product, a ten-term sum) scrolls inside its own box */
+.ans,.tq>.q,.pq>div:first-child,.xq>div{overflow-x:auto;min-width:0}
 .ans{background:#E4F0EE;color:#173F3C;border-radius:10px;padding:12px 14px;font-size:16px;line-height:1.7}
 .ans.plain{background:transparent;padding:0;font-size:15px}
 .ans.dark{background:rgba(255,255,255,.08);color:#FFF;font-size:17px}
@@ -210,7 +212,11 @@ msup>:not(:first-child),msub>:not(:first-child),msubsup>:not(:first-child),mroot
 .sheethead h1{margin:0;font-family:'Newsreader',Georgia,serif;font-size:32px}
 .wsq{display:grid;grid-template-columns:40px minmax(0,1fr);gap:12px;padding:12px 0 72px;border-bottom:1px solid #EFE8DD;font-size:16px;line-height:1.5}
 @media print{.noprint{display:none}.sheetpage{padding:0}body{background:#FFF}}
-@media (max-width:640px){.bar{padding:12px 16px}.wrap{padding:0 16px 72px}.opts{grid-template-columns:1fr}
+@media (max-width:640px){
+/* Card KS S4 (the 390 px overflow census: 1,180 practice answers ran out of a 132 px column): at phone width the
+   practice row is number | question, the Show-answer button under the question, the list's side padding halved */
+.plist{padding:8px 14px}.prow{grid-template-columns:28px minmax(0,1fr);gap:10px}.prow>.ghost{grid-column:2;justify-self:start}
+.bar{padding:12px 16px}.wrap{padding:0 16px 72px}.opts{grid-template-columns:1fr}
 .steps.lg{grid-template-columns:0 0 minmax(0,max-content) auto minmax(0,max-content) minmax(0,1fr)}.lg .step>*{grid-row:2}.lg .step::before{display:none}
 .lg .cue{grid-column:2/-1;grid-row:1;max-width:none;padding:0 0 4px}.lg .step .note{grid-row:3}.lg .w.wp{padding-left:0}.lg .step.text .wide{grid-row:1}.lsn{padding:0 12px 12px 12px}.lrow{grid-template-columns:56px minmax(0,1fr);}
 .lrow .w,.lrow .chip,.lrow .c-lock{grid-column:2}.tprow{grid-template-columns:44px minmax(0,1fr) 20px;padding:14px 16px}.pips{display:none}
