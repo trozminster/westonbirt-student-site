@@ -17,7 +17,14 @@ math{font-family:'Latin Modern Math','Cambria Math','STIX Two Math',math;font-si
 math mo,math mi,math mn{font-family:inherit}
 /* Card KS S4 (OLE, 8 Oct, 10H.15.1): a script is script-size in every engine -- said here, not left to the UA's
    font-size:math, which an engine without math-depth ignores (a full-size, floating 2) */
-msup>:not(:first-child),msub>:not(:first-child),msubsup>:not(:first-child),mroot>:last-child{font-size:71%}
+/* Card KS S5 (OLE, 9 Oct, Firefox desktop + Android: "the 2s are still big"): Gecko ignores a RELATIVE font-size
+   (71%, .71em, smaller) and font-size:math on a MathML script -- measured in Firefox 136 and Gecko 156: the 2 stays
+   at its base's size. calc() is honoured by Gecko and Blink alike, so the script size is said as calc(.71em). */
+msup>:not(:first-child),msub>:not(:first-child),msubsup>:not(:first-child),mroot>:last-child{font-size:calc(.71em)}
+/* Card KS S5: Gecko breaks a line INSIDE inline MathML at an operator ((x + 3)^2 | - 7); Blink never does. One
+   <math> never wraps in either engine (long chains are split into separate <math>s before = by KS_EQBREAK); and
+   Firefox for Android's font inflation never resizes the maths. */
+math{white-space:nowrap;-moz-text-size-adjust:none;-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .mp{white-space:nowrap}
 .qtail{margin:6px 0 0}.qlist{margin:0;padding-left:1.6em;display:flex;flex-direction:column;gap:6px}.qlist>li::marker{font-weight:800;color:#5B1A24}.tq .qlist>li::marker,.ans.dark .qlist>li::marker,.exitans .qlist>li::marker{color:#DCA83C}
 .al{display:grid;grid-template-columns:minmax(0,max-content) auto minmax(0,1fr);align-items:baseline;row-gap:4px}
