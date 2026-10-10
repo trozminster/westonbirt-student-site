@@ -223,3 +223,43 @@
     render();
   }
 })();
+/* Card LI (conventions 29.19): only a cell STILL wider than its card after breaking scrolls, and only sideways. Its
+   content is wrapped in .hx (overflow-x:auto, overflow-y:hidden, padded); a cell that fits again is unwrapped. Watched
+   with a ResizeObserver, so a revealed step, a shown answer and a rotated phone are each measured when they appear. */
+(function () {
+  'use strict';
+  var SEL = '.lg .l, .lg .r, .lg .w, .al .alr, .ans, .tq > .q, .pq > div:first-child, .xq > div, .opt';
+  var cells = document.querySelectorAll(SEL);
+  if (!cells.length) return;
+  var ledgers = document.querySelectorAll('.steps.lg'), optsets = document.querySelectorAll('.opts');
+  function over(c) { return c.clientWidth > 0 && c.scrollWidth > c.clientWidth + 1; }
+  function unwrap(c) {
+    var w = c.firstElementChild;
+    if (w && w.classList.contains('hx') && c.childNodes.length === 1) { while (w.firstChild) c.insertBefore(w.firstChild, w); c.removeChild(w); }
+  }
+  function any(root, sel) { var a = root.querySelectorAll(sel); for (var i = 0; i < a.length; i++) if (over(a[i])) return true; return false; }
+  function run() {
+    queued = null;
+    var i;
+    // start from the authored layout, then: 1. break (stack a ledger, one option per row), 2. scroll what still overflows
+    for (i = 0; i < cells.length; i++) unwrap(cells[i]);
+    for (i = 0; i < ledgers.length; i++) ledgers[i].classList.remove('lstk');
+    for (i = 0; i < optsets.length; i++) optsets[i].classList.remove('wjs');
+    for (i = 0; i < ledgers.length; i++) if (any(ledgers[i], '.l, .r, .w')) ledgers[i].classList.add('lstk');
+    for (i = 0; i < optsets.length; i++) if (!optsets[i].classList.contains('wide') && any(optsets[i], '.opt')) optsets[i].classList.add('wjs');
+    for (i = 0; i < cells.length; i++) {
+      var c = cells[i];
+      if (!over(c)) continue;
+      var w = document.createElement('div'); w.className = 'hx';
+      while (c.firstChild) w.appendChild(c.firstChild);
+      c.appendChild(w);
+    }
+  }
+  var queued = null;
+  function soon() { if (!queued) queued = window.requestAnimationFrame(run); }
+  if (window.ResizeObserver) { var ro = new ResizeObserver(soon); for (var i = 0; i < cells.length; i++) ro.observe(cells[i]); }
+  window.addEventListener('resize', soon);
+  window.addEventListener('load', soon);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(soon);
+  soon();
+})();

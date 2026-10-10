@@ -29,7 +29,7 @@ math{white-space:nowrap;-moz-text-size-adjust:none;-webkit-text-size-adjust:100%
 .qtail{margin:6px 0 0}.qlist{margin:0;padding-left:1.6em;display:flex;flex-direction:column;gap:6px}.qlist>li::marker{font-weight:800;color:#5B1A24}.tq .qlist>li::marker,.ans.dark .qlist>li::marker,.exitans .qlist>li::marker{color:#DCA83C}
 .al{display:grid;grid-template-columns:minmax(0,max-content) auto minmax(0,1fr);align-items:baseline;row-gap:4px}
 .al .all{grid-column:1;text-align:right;white-space:nowrap}.al .ale{grid-column:2}.al .ale math{padding:0 .2778em}
-.al .alr{grid-column:3;text-align:left;white-space:nowrap;overflow-x:auto}.al .alw{grid-column:1/-1;text-align:left}
+.al .alr{grid-column:3;text-align:left;white-space:normal;min-width:0}.al .alw{grid-column:1/-1;text-align:left}
 .top{background:#5B1A24;color:#FFF}
 .bar{max-width:1120px;margin:0 auto;padding:14px 24px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
 .crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-weight:800;letter-spacing:.08em;font-size:13px;text-transform:uppercase}
@@ -85,8 +85,16 @@ math{white-space:nowrap;-moz-text-size-adjust:none;-webkit-text-size-adjust:100%
 .wsl a{color:#5B1A24;font-weight:700;text-decoration:underline;text-underline-offset:3px}.wsl a:hover{color:#2B2823}
 .pmgo{text-decoration:none;display:inline-flex;align-items:center}
 .fits{margin-top:20px;text-decoration:none;color:#2B2823;max-width:640px}.fits p{margin:0;font-size:15px;color:#4A443E}.fits:hover{box-shadow:0 8px 24px rgba(43,40,35,.10)}
-/* Card KS S4: a true maths line too wide for its card (a matrix product, a ten-term sum) scrolls inside its own box */
-.ans,.tq>.q,.pq>div:first-child,.xq>div{overflow-x:auto;min-width:0}
+/* Card LI (OLE, 9 Oct 14:54, 11Ma1 3.1 on pupils' Windows laptops: scroll bars both ways on every worked-example step):
+   NO CELL IS A SCROLL CONTAINER. overflow-x:auto forces overflow-y:auto, maths ink spills its line box by a pixel, and
+   Windows draws classic bars always. A cell breaks first (before =, then + / -, the pieces site_math writes); only a
+   cell still wider than its card is given, by site.js, a horizontal-only wrapper (.hx), padded so no script is clipped. */
+.ans,.tq>.q,.pq>div:first-child,.xq>div{min-width:0}
+.hx{overflow-x:auto;overflow-y:hidden;padding:.5em 0;margin:-.5em 0}
+/* Card LI: break before scroll -- a ledger whose maths does not fit beside its cues takes the phone layout (each cue on
+   its own line above its row), and a CFU set with an option too wide for half the card takes one option per row */
+.steps.lg.lstk{grid-template-columns:0 0 minmax(0,max-content) auto minmax(0,max-content) minmax(0,1fr)}.steps.lg.lstk .step>*{grid-row:2}.steps.lg.lstk .step::before{display:none}.steps.lg.lstk .cue{grid-column:2/-1;grid-row:1;max-width:none;padding:0 0 4px}.steps.lg.lstk .step .note{grid-row:3}.steps.lg.lstk .w.wp{padding-left:0}.steps.lg.lstk .step.text .wide{grid-row:1}
+.opts.wjs{grid-template-columns:1fr}
 .ans{background:#E4F0EE;color:#173F3C;border-radius:10px;padding:12px 14px;font-size:16px;line-height:1.7}
 .ans.plain{background:transparent;padding:0;font-size:15px}
 .ans.dark{background:rgba(255,255,255,.08);color:#FFF;font-size:17px}
@@ -105,7 +113,7 @@ math{white-space:nowrap;-moz-text-size-adjust:none;-webkit-text-size-adjust:100%
 .figrow{display:flex;flex-wrap:wrap;gap:12px;margin-top:16px}.figrow .fig{flex:1 1 260px}
 .ex{padding:24px;gap:14px}.exhead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
 .exq{font-size:18px;line-height:1.5;font-weight:600}
-.lscroll{overflow-x:auto;max-width:100%}
+.lscroll{max-width:100%;min-width:0}
 /* Card KS S4 (OLE, 8 Oct 19:42, 10H.7.2 and 8Ma2 8.2.1): the maths block is CENTRED between the cue's hairline and the
    card's edge (two 1fr spacers round l | = | r); the hairline is the row's own ::before in the first spacer, full row
    height; a prose row (.wp) wraps from the hairline; a maths cell too wide for the card scrolls inside itself, so the
@@ -117,11 +125,11 @@ math{white-space:nowrap;-moz-text-size-adjust:none;-webkit-text-size-adjust:100%
 .lg .step{display:grid;grid-template-columns:subgrid;grid-column:1/-1;align-items:baseline;padding:8px 0;border-top:1px solid #EFE8DD}
 .lg .step[hidden]{display:grid;visibility:hidden;height:0;padding:0;border:0;overflow:hidden}
 .lg .cue{grid-column:1;font-weight:800;font-size:14px;padding-right:14px;max-width:260px}
-.lg .l{grid-column:3;text-align:right;white-space:nowrap;overflow-x:auto}
+.lg .l{grid-column:3;text-align:right;white-space:normal;min-width:0}
 .lg .e{grid-column:4;text-align:center;white-space:nowrap}
 .lg .e math{padding:0 .2778em}
-.lg .r{grid-column:5;text-align:left;white-space:nowrap;overflow-x:auto}
-.lg .w{grid-column:3/6;text-align:left;white-space:nowrap;overflow-x:auto}
+.lg .r{grid-column:5;text-align:left;white-space:normal;min-width:0}
+.lg .w{grid-column:3/6;text-align:left;white-space:normal;min-width:0}
 .lg .w.wp{grid-column:2/-1;white-space:normal;overflow-x:visible;padding-left:14px;min-width:0;line-height:1.5}
 .lg .step math{font-size:20px}
 .lg .step.text .wide{grid-column:1/-1;font-size:16px;line-height:1.5;white-space:normal;min-width:0}
@@ -140,7 +148,7 @@ math{white-space:nowrap;-moz-text-size-adjust:none;-webkit-text-size-adjust:100%
 .opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
 /* Card KS S4: a CFU whose options run long (over 30 characters drawn) takes one option per row; any still too wide
    for its button scrolls inside it */
-.opts.wide{grid-template-columns:1fr}.opt{min-width:0;overflow-x:auto}
+.opts.wide{grid-template-columns:1fr}.opt{min-width:0}
 .opt{text-align:left;border-radius:12px;padding:12px 14px;min-height:48px;font-size:15px;color:#2B2823;background:#FFF;border:1.5px solid #DDD3C4}
 .opt:hover{border-color:#5B1A24}.ol{font-weight:800;margin-right:8px}
 .opt.right{background:#E3F2E9;border-color:#1F6B45;color:#16452C}.opt.wrong{background:#FBEADF;border-color:#B3541E;color:#6B2E09}
