@@ -6,6 +6,27 @@
   function sset(k, v) { try { if (v === null) window.sessionStorage.removeItem(k); else window.sessionStorage.setItem(k, v); } catch (e) {} }
   function lget(k) { try { return JSON.parse(window.localStorage.getItem(k) || 'null'); } catch (e) { return null; } }
   function lset(k, v) { try { window.localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+  // ---- Card MK (29.21): THE "I CAN" RATINGS' ONE STORAGE MODULE. OLE, 17 Oct 2026: "browser first - to test before
+  // building into school login." Everything else reads and writes ratings through these four calls, so a school login
+  // replaces this block and nothing else. A year's ratings: { lesson id: { s1: 'can'|'nearly'|'not', s2: ... } }.
+  // Kept in memory too, so the taps still work for this visit when the browser won't store anything.
+  var Ratings = (function () {
+    var P = 'wb-rating:', mem = {};
+    function load(y) { if (!mem[y]) { var o = lget(P + y); mem[y] = (o && typeof o === 'object') ? o : {}; } return mem[y]; }
+    return {
+      year: function (y) { return load(y); },
+      get: function (y, lid) { return load(y)[lid] || {}; },
+      set: function (y, lid, lo, v) {
+        var o = load(y), r = o[lid] || {};
+        if (v) r[lo] = v; else delete r[lo];
+        if (Object.keys(r).length) o[lid] = r; else delete o[lid];
+        lset(P + y, o);
+      },
+      saved: function () { try { var k = 'wb-rating-probe'; window.localStorage.setItem(k, '1'); window.localStorage.removeItem(k); return true; } catch (e) { return false; } }
+    };
+  })();
+  var RATING_ORDER = { not: 0, nearly: 1, can: 2 }, RATING_WORD = { not: 'Not yet', nearly: 'Nearly', can: 'I can do this' };
+  function worst(r) { var w = null; for (var k in r) if (r.hasOwnProperty(k) && RATING_ORDER.hasOwnProperty(r[k]) && (w === null || RATING_ORDER[r[k]] < RATING_ORDER[w])) w = r[k]; return w; }
   function pad(n) { return (n < 10 ? '0' : '') + n; }
   function todayISO() { var d = new Date(); return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
   var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -73,7 +94,37 @@
     document.body.appendChild(bg); draw();
     var first = keys.querySelector('button'); if (first) first.focus();
   }
-  window.WBStudent = { openPin: openPin, unlocked: unlocked, todayISO: todayISO, relock: function () { sset(UNLOCK, null); } };
+  window.WBStudent = { openPin: openPin, unlocked: unlocked, todayISO: todayISO, relock: function () { sset(UNLOCK, null); }, ratings: Ratings };
+  // Card MK: the rating card on a lesson page (after the exit ticket)
+  function wireRatings() {
+    var pg = (document.body.getAttribute('data-page') || '').split('/'), y = pg[0], lid = pg.slice(1).join('/');
+    var rows = document.querySelectorAll('.rtrow');
+    if (!rows.length) return;
+    function draw() {
+      var r = Ratings.get(y, lid);
+      Array.prototype.forEach.call(rows, function (row) {
+        var lo = row.getAttribute('data-lo');
+        Array.prototype.forEach.call(row.querySelectorAll('.rtb'), function (b) { b.setAttribute('aria-pressed', r[lo] === b.getAttribute('data-v') ? 'true' : 'false'); });
+      });
+    }
+    Array.prototype.forEach.call(rows, function (row) {
+      var lo = row.getAttribute('data-lo');
+      Array.prototype.forEach.call(row.querySelectorAll('.rtb'), function (b) {
+        b.addEventListener('click', function () { var v = b.getAttribute('data-v'); Ratings.set(y, lid, lo, Ratings.get(y, lid)[lo] === v ? null : v); draw(); });
+      });
+    });
+    var note = document.getElementById('rtnote');
+    if (note && !Ratings.saved()) note.textContent = 'Your ratings are saved on this device only, and this browser isn’t saving them: they will be gone when you close the page.';
+    draw();
+  }
+  function lockScreen(lock, what, opensText) {
+    var yr = document.body.getAttribute('data-year');
+    lock.innerHTML = '<div class="kick">' + LOCK_SVG + ' Not open yet</div><h1>This ' + what + ' is locked</h1>' +
+      '<p>' + opensText + '</p>' +
+      '<a class="rev" href="index.html" style="text-decoration:none">← All ' + esc(yr) + ' lessons</a>' +
+      '<button class="unl" type="button" id="unlockbtn">' + LOCK_SVG + ' Teacher unlock</button>';
+    document.getElementById('unlockbtn').addEventListener('click', function () { openPin(function () { location.reload(); }); });
+  }
   var kind = document.body.getAttribute('data-kind');
 
   // ================= LESSON =================
@@ -122,7 +173,7 @@
       function draw() {
         var s = st.step[id] || 0;
         Array.prototype.forEach.call(art.querySelectorAll('[data-step]'), function (r) { r.hidden = +r.getAttribute('data-step') > s; });
-        b.textContent = s >= n ? 'Start again' : 'Show step ' + (s + 1) + ' of ' + n;
+        b.textContent = s >= n ? 'Start again' : 'What’s the next step? Show step ' + (s + 1) + ' of ' + n;
       }
       b.addEventListener('click', function () { var s = st.step[id] || 0; st.step[id] = s >= n ? 0 : s + 1; save(); draw(); progress(); });
       draw();
@@ -142,11 +193,121 @@
       });
       draw();
     });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-hint]'), function (b) {
+      var box = document.getElementById(b.getAttribute('data-hint'));
+      b.addEventListener('click', function () { box.hidden = !box.hidden; b.setAttribute('aria-expanded', box.hidden ? 'false' : 'true'); b.textContent = box.hidden ? 'Show hint' : 'Hide hint'; });
+    });
     Array.prototype.forEach.call(document.querySelectorAll('[data-more]'), function (b) {
       var box = document.getElementById(b.getAttribute('data-more'));
       b.addEventListener('click', function () { box.hidden = !box.hidden; b.setAttribute('aria-expanded', box.hidden ? 'false' : 'true'); b.textContent = box.hidden ? 'Read more' : 'Show less'; });
     });
+    wireRatings();
     progress();
+    return;
+  }
+
+  // ================= REVISE (Card MK, 29.20) =================
+  if (kind === 'revise') {
+    var rdate = document.body.getAttribute('data-date'), rT = todayISO();
+    var rmain = document.getElementById('revise'), rlock = document.getElementById('lockscreen');
+    var rfuture = !rdate || rdate > rT;
+    if (rfuture && !unlocked()) {
+      rmain.hidden = true; rlock.hidden = false;
+      lockScreen(rlock, 'revision page', rdate ? 'It opens on ' + esc(document.body.getAttribute('data-opens')) + ', after the last lesson it covers.' : 'Its lessons haven’t all got dates yet.');
+      return;
+    }
+    if (rfuture && unlocked()) {
+      var rtb = document.createElement('div'); rtb.className = 'teacherbar';
+      rtb.innerHTML = '<div class="pill"><span>Teacher view · not all taught yet</span><button class="lockbtn" type="button">Lock again</button></div>';
+      rtb.querySelector('button').addEventListener('click', function () { sset(UNLOCK, null); location.reload(); });
+      rmain.parentNode.insertBefore(rtb, rmain);
+    }
+    var N = +document.body.getAttribute('data-n') || 10, yk = document.body.getAttribute('data-yk');
+    var lids = (document.body.getAttribute('data-lids') || '').split(',');
+    var list = document.getElementById('rvlist'), pool = Array.prototype.slice.call(list.querySelectorAll('.rvi'));
+    var shown = [], seen = {}, rst = { open: {}, pick: {} };
+    // what the student said: 'Not yet' first, else 'Nearly' (worst rating per lesson, from the storage module)
+    var rated = Ratings.year(yk), notYet = [], nearly = [];
+    lids.forEach(function (l) { var w = worst(rated[l] || {}); if (w === 'not') notYet.push(l); else if (w === 'nearly') nearly.push(l); });
+    var have = {}; pool.forEach(function (it) { have[it.getAttribute('data-lid')] = 1; });
+    notYet = notYet.filter(function (l) { return have[l]; }); nearly = nearly.filter(function (l) { return have[l]; });
+    var first = notYet.length ? notYet : nearly, said = document.getElementById('rvsaid');
+    function andList(a) { var s = a.map(function (l) { return '<a href="' + esc(l) + '.html">' + esc(l) + '</a>'; }); return s.length > 1 ? s.slice(0, -1).join(', ') + ' and ' + s[s.length - 1] : s[0]; }
+    if (first.length) {
+      said.hidden = false; if (!notYet.length) said.className = 'rvsaid rvnear';
+      said.innerHTML = 'You said ‘' + (notYet.length ? 'Not yet' : 'Nearly') + '’ on ' + andList(first) + ' — start there. ' +
+        (first.length === 1 ? 'Its questions come first.' : 'Their questions come first.');
+    }
+    function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+    // interleave: one item from each lesson in turn (the lessons in a fresh random order each round)
+    function interleave(items, k) {
+      var by = {}, ls = [];
+      shuffle(items.slice()).forEach(function (it) { var l = it.getAttribute('data-lid'); if (!by[l]) { by[l] = []; ls.push(l); } by[l].push(it); });
+      var out = [];
+      while (out.length < k) {
+        var any = false;
+        shuffle(ls).forEach(function (l) { if (out.length < k && by[l].length) { out.push(by[l].shift()); any = true; } });
+        if (!any) break;
+      }
+      return out;
+    }
+    function draw() {
+      var fresh = pool.filter(function (it) { return !seen[it.id]; });
+      if (fresh.length < Math.min(N, pool.length)) { seen = {}; fresh = pool.slice(); }
+      var pri = fresh.filter(function (it) { return first.indexOf(it.getAttribute('data-lid')) >= 0; });
+      var others = fresh.filter(function (it) { return first.indexOf(it.getAttribute('data-lid')) < 0; });
+      // the lessons rated low come first, up to 6 of the 10 while other lessons have questions, so the set still mixes
+      var take = interleave(pri, others.length ? Math.min(6, N) : N);
+      take = take.concat(interleave(others, N - take.length));
+      if (take.length < N) take = take.concat(interleave(fresh.filter(function (it) { return take.indexOf(it) < 0; }), N - take.length));
+      pool.forEach(function (it) { it.hidden = true; });
+      shown = take;
+      take.forEach(function (it, i) {
+        seen[it.id] = 1;
+        delete rst.pick[it.id];
+        Array.prototype.forEach.call(it.querySelectorAll('[data-rev]'), function (b) { delete rst.open[b.getAttribute('data-rev')]; });
+        it.querySelector('.rvn').textContent = (i + 1) + '.';
+        list.appendChild(it); it.hidden = false;
+        drawItem(it);
+      });
+      rprogress();
+    }
+    function drawItem(it) {
+      Array.prototype.forEach.call(it.querySelectorAll('[data-rev]'), function (b) {
+        var id = b.getAttribute('data-rev'), o = !!rst.open[id];
+        document.getElementById(id).hidden = !o; b.setAttribute('aria-expanded', o ? 'true' : 'false'); b.textContent = o ? 'Hide answer' : 'Show answer';
+      });
+      if (it.classList.contains('cfu')) {
+        var key = it.getAttribute('data-key'), p = rst.pick[it.id];
+        Array.prototype.forEach.call(it.querySelectorAll('.opt'), function (o) {
+          var l = o.getAttribute('data-opt'); o.className = 'opt' + (p === l ? (l === key ? ' right' : ' wrong') : '');
+          o.setAttribute('aria-pressed', p === l ? 'true' : 'false');
+        });
+        Array.prototype.forEach.call(it.querySelectorAll('.fb'), function (f) { f.hidden = f.getAttribute('data-for') !== p; });
+      }
+    }
+    function rprogress() {
+      var done = 0;
+      shown.forEach(function (it) {
+        if (it.classList.contains('cfu')) { if (rst.pick[it.id] && rst.pick[it.id] === it.getAttribute('data-key')) done++; }
+        else { var b = it.querySelector('[data-rev]'); if (b && rst.open[b.getAttribute('data-rev')]) done++; }
+      });
+      var t = document.getElementById('progtext'), f = document.getElementById('progfill');
+      if (t) t.textContent = done + ' of ' + shown.length + ' checked';
+      if (f) f.style.width = (shown.length ? Math.round(100 * done / shown.length) : 0) + '%';
+    }
+    pool.forEach(function (it) {
+      Array.prototype.forEach.call(it.querySelectorAll('[data-rev]'), function (b) {
+        b.addEventListener('click', function () { var id = b.getAttribute('data-rev'); rst.open[id] = !rst.open[id]; drawItem(it); rprogress(); });
+      });
+      Array.prototype.forEach.call(it.querySelectorAll('.opt'), function (o) {
+        o.addEventListener('click', function () { rst.pick[it.id] = o.getAttribute('data-opt'); drawItem(it); rprogress(); });
+      });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('.rvmore'), function (b) {
+      b.addEventListener('click', function () { draw(); window.scrollTo(0, 0); });
+    });
+    draw();
     return;
   }
 
@@ -186,23 +347,35 @@
         return '<a class="crow" href="' + esc(r.id) + '.html"><span class="i">' + esc(r.id) + '</span><span class="t">' + esc(r.title) + '</span><span class="w">' + fmt(r.date) + '</span></a>';
       }).join('') : '<span class="w">Nothing to catch up on yet.</span>') + '</div></div>';
       h += '<h2 class="yh2">The year, topic by topic</h2><div class="topics">';
+      var rated = Ratings.year(Y.key);                 // Card MK: the student's own ratings, this device only
+      function rvOpen(d) { return un || (d && d <= T); }
       Y.topics.forEach(function (t, ti) {
+        (Y.hts || []).forEach(function (ht) {          // Card MK: "Revise this half term" heads its half term's topics
+          if (ht.t !== ti) return;
+          h += '<div class="hth"><span class="htl">' + esc(ht.name) + '</span>' + (ht.rv ? (rvOpen(ht.rvd)
+            ? '<a class="rvh" href="' + esc(ht.rv) + '">Revise this half term →</a>'
+            : '<span class="rvh off">Revise this half term: opens ' + (ht.rvd ? fmt(ht.rvd) : 'when it’s taught') + '</span>') : '') + '</div>';
+        });
         var states = t.lessons.map(function (l) { return l[4] ? 'extra' : (!l[2] ? 'future' : (l[2] < T ? 'done' : (l[2] === T ? 'today' : 'future'))); });
         var core = states.filter(function (s) { return s !== 'extra'; }), firstD = (t.lessons.filter(function (l) { return !l[4]; })[0] || t.lessons[0])[2];
         var allF = core.every(function (s) { return s === 'future'; }), allD = core.every(function (s) { return s === 'done'; });
         var ex = expanded[ti] !== undefined ? expanded[ti] : (t.n === curTopic);
         var sub = t.lessons.length + (t.lessons.length === 1 ? ' lesson' : ' lessons') + ' \u00B7 ' + (allD ? 'done' : (allF ? 'starts ' + fmt(firstD) : 'in progress'));
+        var nNot = t.lessons.filter(function (l) { return worst(rated[l[0]] || {}) === 'not'; }).length;   // Card MK
+        if (nNot) sub += ' \u00B7 <span class="rtsum">' + nNot + ' Not yet</span>';
         var badge = allF && !un ? 'b-future' : (allD ? 'b-done' : 'b-now');
-        h += '<div class="tp"><button class="tprow" type="button" data-t="' + ti + '" aria-expanded="' + ex + '"><span class="badge ' + badge + '">' + esc(t.n) + '</span>' +
+        h += '<div class="tp"><div class="tph"><button class="tprow" type="button" data-t="' + ti + '" aria-expanded="' + ex + '"><span class="badge ' + badge + '">' + esc(t.n) + '</span>' +
           '<span class="tpt"><span class="a' + (allF && !un ? ' mute' : '') + '">' + esc(t.title) + '</span><span class="b">' + sub + '</span></span>' +
           '<span class="pips">' + core.map(function (s) { return '<span class="pip ' + (s === 'done' ? 'done' : (s === 'today' ? 'now' : '')) + '"></span>'; }).join('') + '</span>' +
-          '<span class="chev">' + (ex ? '\u2212' : '+') + '</span></button>';
+          '<span class="chev">' + (ex ? '\u2212' : '+') + '</span></button>' +
+          (t.rv && rvOpen(t.rvd) ? '<a class="rvl" href="' + esc(t.rv) + '" aria-label="Revise topic ' + esc(t.n) + '">Revise</a>' : '') + '</div>';
+        function rpip(lid) { var w = worst(rated[lid] || {}); return w ? '<span class="rtpip rt-' + w + '" role="img" aria-label="You said: ' + RATING_WORD[w] + '" title="You said: ' + RATING_WORD[w] + '"></span>' : ''; }
         if (ex) {
           h += '<div class="lsn">' + t.lessons.map(function (l, i) {
             var s = states[i], open = s !== 'future' || un;
             if (s === 'extra') return '<a class="lrow" href="' + esc(l[0]) + '.html"><span class="i">' + esc(l[0]) + '</span><span class="t">' + esc(l[1]) + '</span><span class="w">Extra</span>' +
               '<span class="chip c-extra">Extra — not taught in class</span></a>';
-            if (open) return '<a class="lrow" href="' + esc(l[0]) + '.html"><span class="i">' + esc(l[0]) + '</span><span class="t">' + esc(l[1]) + '</span><span class="w">' + fmt(l[2]) + '</span>' +
+            if (open) return '<a class="lrow" href="' + esc(l[0]) + '.html"><span class="i">' + esc(l[0]) + rpip(l[0]) + '</span><span class="t">' + esc(l[1]) + '</span><span class="w">' + fmt(l[2]) + '</span>' +
               '<span class="chip ' + (l[3] ? 'c-soon' : (s === 'today' ? 'c-today' : (s === 'done' ? 'c-done' : 'c-open'))) + '">' + (l[3] ? 'Coming soon' : (s === 'today' ? 'Today' : (s === 'done' ? 'Done' : 'Open'))) + '</span></a>';
             return '<button class="lrow shut" type="button" data-lock="' + esc(l[0]) + '"><span class="i">' + esc(l[0]) + '</span><span class="t">' + esc(l[1]) + '</span><span class="w">' + fmt(l[2]) + '</span>' +
               '<span class="c-lock">' + LOCK_SVG + 'Locked</span></button>';
@@ -228,7 +401,7 @@
    with a ResizeObserver, so a revealed step, a shown answer and a rotated phone are each measured when they appear. */
 (function () {
   'use strict';
-  var SEL = '.lg .l, .lg .r, .lg .w, .al .alr, .ans, .tq > .q, .pq > div:first-child, .xq > div, .opt';
+  var SEL = '.lg .l, .lg .r, .lg .w, .al .alr, .ans, .tq > .q, .gq > .q, .pq > div:first-child, .xq > div, .opt';
   var cells = document.querySelectorAll(SEL);
   if (!cells.length) return;
   var ledgers = document.querySelectorAll('.steps.lg'), optsets = document.querySelectorAll('.opts');
@@ -237,6 +410,14 @@
     var w = c.firstElementChild;
     if (w && w.classList.contains('hx') && c.childNodes.length === 1) { while (w.firstChild) c.insertBefore(w.firstChild, w); c.removeChild(w); }
   }
+  var ROWSTACK = 1 === 1;
+  function wraps(l) {               // the left side's maths pieces sit on more than one line
+    if (!l.offsetParent) return false;
+    var m = l.querySelectorAll('math');
+    if (m.length < 2) return false;
+    var a = m[0].getBoundingClientRect(), b = m[m.length - 1].getBoundingClientRect();
+    return b.top >= a.bottom - 2;
+  }
   function any(root, sel) { var a = root.querySelectorAll(sel); for (var i = 0; i < a.length; i++) if (over(a[i])) return true; return false; }
   function run() {
     queued = null;
@@ -244,8 +425,18 @@
     // start from the authored layout, then: 1. break (stack a ledger, one option per row), 2. scroll what still overflows
     for (i = 0; i < cells.length; i++) unwrap(cells[i]);
     for (i = 0; i < ledgers.length; i++) ledgers[i].classList.remove('lstk');
+    var lw = document.querySelectorAll('.steps.lg .step.lwr');
+    for (i = 0; i < lw.length; i++) lw[i].classList.remove('lwr');
     for (i = 0; i < optsets.length; i++) optsets[i].classList.remove('wjs');
     for (i = 0; i < ledgers.length; i++) if (any(ledgers[i], '.l, .r, .w')) ledgers[i].classList.add('lstk');
+    if (ROWSTACK) {                 // Card MQ (7.44 (bb1)): a wrapping left side stacks the row, never wraps beside it
+      for (i = 0; i < ledgers.length; i++) {
+        var ls = ledgers[i].querySelectorAll('.step > .l'), j;
+        for (j = 0; j < ls.length; j++) if (wraps(ls[j])) { ledgers[i].classList.add('lstk'); break; }
+        if (!ledgers[i].classList.contains('lstk')) continue;
+        for (j = 0; j < ls.length; j++) if (wraps(ls[j])) ls[j].parentNode.classList.add('lwr');
+      }
+    }
     for (i = 0; i < optsets.length; i++) if (!optsets[i].classList.contains('wide') && any(optsets[i], '.opt')) optsets[i].classList.add('wjs');
     for (i = 0; i < cells.length; i++) {
       var c = cells[i];

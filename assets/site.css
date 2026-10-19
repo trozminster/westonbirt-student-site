@@ -93,10 +93,14 @@ math{white-space:nowrap;-moz-text-size-adjust:none;-webkit-text-size-adjust:100%
 .hx{overflow-x:auto;overflow-y:hidden;padding:.5em 0;margin:-.5em 0}
 /* Card LI: break before scroll -- a ledger whose maths does not fit beside its cues takes the phone layout (each cue on
    its own line above its row), and a CFU set with an option too wide for half the card takes one option per row */
-.steps.lg.lstk{grid-template-columns:0 0 minmax(0,max-content) auto minmax(0,max-content) minmax(0,1fr)}.steps.lg.lstk .step>*{grid-row:2}.steps.lg.lstk .step::before{display:none}.steps.lg.lstk .cue{grid-column:2/-1;grid-row:1;max-width:none;padding:0 0 4px}.steps.lg.lstk .step .note{grid-row:3}.steps.lg.lstk .w.wp{padding-left:0}.steps.lg.lstk .step.text .wide{grid-row:1}
+.steps.lg.lstk{grid-template-columns:0 0 minmax(0,max-content) auto minmax(0,max-content) minmax(0,1fr)}.steps.lg.lstk .step>*{grid-row:2}.steps.lg.lstk .step::before{display:none}.steps.lg.lstk .cue{grid-column:2/-1;grid-row:1;max-width:none;padding:0 0 4px}.steps.lg.lstk .step .note{grid-row:3}.steps.lg.lstk .w.wp{padding-left:0}.steps.lg.lstk .step.lwr .l{grid-row:2;grid-column:3/-1;text-align:left}.steps.lg.lstk .step.lwr .e,.steps.lg.lstk .step.lwr .r{grid-row:3}.steps.lg.lstk .step.lwr .note{grid-row:4}.steps.lg.lstk .step.text .wide{grid-row:1}
 .opts.wjs{grid-template-columns:1fr}
 .ans{background:#E4F0EE;color:#173F3C;border-radius:10px;padding:12px 14px;font-size:16px;line-height:1.7}
 .ans.plain{background:transparent;padding:0;font-size:15px}
+.btns{display:flex;flex-wrap:wrap;gap:8px;align-self:flex-start;align-items:flex-start}
+.ans.hint{background:#FBF3DF;color:#5A4410;font-size:15px}
+.fig:has(> .stack > img[data-step]:only-child[hidden]){display:none}
+button.strongb[data-steps]{white-space:normal;max-width:100%;text-align:left}
 .ans.dark{background:rgba(255,255,255,.08);color:#FFF;font-size:17px}
 .ans.exitans{background:transparent;padding:0;color:#F6E7E9;font-size:16px}
 .rhs{margin-top:16px}.rq{display:flex;flex-direction:column;gap:8px;font-size:15px;line-height:1.5}
@@ -156,6 +160,9 @@ math{white-space:nowrap;-moz-text-size-adjust:none;-webkit-text-size-adjust:100%
 .fb.ok{background:#E3F2E9;color:#16452C}.fb.no{background:#FBEADF;color:#6B2E09}
 .gate{margin:0 0 20px;background:#FBF1DC;border-radius:14px;padding:16px 20px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;font-size:15px;line-height:1.5}
 .gatego{font-size:13px;font-weight:800;color:#6B4A07}
+.gate.gatenum{display:block}.gatenum .gatehead{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.gparts{margin:12px 0 0;display:flex;flex-direction:column;gap:14px}.gq{display:flex;gap:8px;align-items:baseline;min-width:0}.gn{font-weight:800;color:#6B4A07;flex:none}
+.gpart{display:flex;flex-direction:column;gap:10px;min-width:0}.gpart .fig{background:#FFF}.gpart>.ghost{align-self:flex-start}
 .plist{padding:8px 24px;gap:0}
 .prow{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:14px;align-items:start;padding:16px 0;border-bottom:1px solid #EFE8DD}
 .prow:last-child{border-bottom:0}.pq{display:flex;flex-direction:column;gap:10px;font-size:16px;line-height:1.5;min-width:0}
@@ -233,9 +240,41 @@ math{white-space:nowrap;-moz-text-size-adjust:none;-webkit-text-size-adjust:100%
 @media (max-width:640px){
 /* Card KS S4 (the 390 px overflow census: 1,180 practice answers ran out of a 132 px column): at phone width the
    practice row is number | question, the Show-answer button under the question, the list's side padding halved */
-.plist{padding:8px 14px}.prow{grid-template-columns:28px minmax(0,1fr);gap:10px}.prow>.ghost{grid-column:2;justify-self:start}
+.plist{padding:8px 14px}.prow{grid-template-columns:28px minmax(0,1fr);gap:10px}.prow>.ghost,.prow>.btns{grid-column:2;justify-self:start}
 .bar{padding:12px 16px}.wrap{padding:0 16px 72px}.opts{grid-template-columns:1fr}
 .steps.lg{grid-template-columns:0 0 minmax(0,max-content) auto minmax(0,max-content) minmax(0,1fr)}.lg .step>*{grid-row:2}.lg .step::before{display:none}
 .lg .cue{grid-column:2/-1;grid-row:1;max-width:none;padding:0 0 4px}.lg .step .note{grid-row:3}.lg .w.wp{padding-left:0}.lg .step.text .wide{grid-row:1}.lsn{padding:0 12px 12px 12px}.lrow{grid-template-columns:56px minmax(0,1fr);}
 .lrow .w,.lrow .chip,.lrow .c-lock{grid-column:2}.tprow{grid-template-columns:44px minmax(0,1fr) 20px;padding:14px 16px}.pips{display:none}
 .exit{padding:22px}.track{width:100px}}
+/* Card MK (29.20-29.21): Revise pages and the "I can" rating. Every class here is new and owned by these two
+   components (29.17 (f)): rv* the Revise page, rt* the rating, ht* the half-term heading, tph the topic row's wrapper. */
+.rvhead{padding:36px 0 16px}.rvhead h1{margin:6px 0 0;font-family:'Newsreader',Georgia,serif;font-weight:600;font-size:clamp(32px,5vw,48px);line-height:1.05}
+.rvsaid{margin:0 0 14px;background:#FBEADF;color:#6B2E09;border-radius:14px;padding:14px 18px;font-size:15px;line-height:1.5;font-weight:700}
+.rvsaid.rvnear{background:#FBF1DC;color:#6B4A07}.rvsaid a{color:inherit}
+.rvlist{display:flex;flex-direction:column;gap:14px;margin-top:8px}
+.rvi{gap:10px}.rvtop{display:flex;align-items:baseline;gap:12px}
+.rvn{font-family:'Newsreader',serif;font-size:22px;color:#5B1A24;min-width:1.4em}
+.rvsrc{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#5E5750}.rvsrc a{color:#5B1A24}
+.rvstem{margin:0;font-size:15px;line-height:1.5;color:#4A443E}
+.rvfoot{display:flex;flex-wrap:wrap;align-items:center;gap:18px;margin-top:22px}
+.rtcard{gap:4px}.rtcard .lead{margin:0 0 8px}
+.rtrow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 18px;padding:12px 0;border-top:1px solid #EFE8DD}
+.rtlo{flex:1 1 320px;min-width:0;font-size:16px;line-height:1.5}
+.rtbtns{display:flex;flex-wrap:wrap;gap:8px}
+.rtb{border:1.5px solid #DDD3C4;border-radius:999px;background:#FFF;color:#2B2823;font-weight:700;font-size:14px;padding:8px 14px;min-height:44px}
+.rtb:hover{border-color:#5B1A24}
+.rtb.rt-can[aria-pressed="true"]{background:#E3F2E9;border-color:#1F6B45;color:#16452C}
+.rtb.rt-nearly[aria-pressed="true"]{background:#FBF1DC;border-color:#B98A1E;color:#6B4A07}
+.rtb.rt-not[aria-pressed="true"]{background:#FBEADF;border-color:#B3541E;color:#6B2E09}
+.rtnote{margin:10px 0 0;font-size:13px;color:#5E5750}
+.rtpip{display:inline-block;width:10px;height:10px;border-radius:999px;margin-left:8px;vertical-align:middle}
+.rtpip.rt-can{background:#1F6B45}.rtpip.rt-nearly{background:#DCA83C}.rtpip.rt-not{background:#B3541E}
+.rtsum{color:#6B2E09;font-weight:700}
+.tph{display:flex;align-items:center}.tph .tprow{flex:1 1 auto;min-width:0}
+.rvl{flex:none;margin-right:18px;font-size:13px;font-weight:800;color:#5B1A24;background:#F3E6E7;border-radius:999px;padding:8px 14px;text-decoration:none;min-height:36px;display:inline-flex;align-items:center}
+.rvl:hover{background:#E9D3D6;color:#3E1018}
+.hth{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px 16px;padding:12px 22px;background:#EDE6DA}
+.htl{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#5E5750}
+.rvh{font-size:14px;font-weight:800;color:#5B1A24;text-decoration:none;min-height:36px;display:inline-flex;align-items:center}
+.rvh.off{color:#8C847A;font-weight:700}
+@media (max-width:640px){.rvl{margin-right:10px;padding:6px 10px}.hth{padding:10px 16px}.rtbtns{width:100%}}
