@@ -1,0 +1,4 @@
+The *.nm.woff2 fonts here are derived from the originals named in their file names, by fontTools:
+subset to the characters this site draws, then stored as WOFF2. Nothing else is changed; each keeps its original licence (OFL-Mulish.txt,
+OFL-Newsreader.txt, GUST-FONT-LICENSE-LatinModernMath.txt). Renamed as the GUST Font License requests of a derived
+work. Westonbirt Maths student site, Card NM (21 Oct 2026).

@@ -1,11 +1,11 @@
 
-@font-face{font-family:'Mulish';src:url(fonts/Mulish-Regular.ttf) format('truetype');font-weight:400 500;font-style:normal}
-@font-face{font-family:'Mulish';src:url(fonts/Mulish-Bold.ttf) format('truetype');font-weight:600 900;font-style:normal}
-@font-face{font-family:'Mulish';src:url(fonts/Mulish-Italic-Regular.ttf) format('truetype');font-weight:400 900;font-style:italic}
-@font-face{font-family:'Newsreader';src:url(fonts/Newsreader-Regular.ttf) format('truetype');font-weight:400 500;font-style:normal}
-@font-face{font-family:'Newsreader';src:url(fonts/Newsreader-Bold.ttf) format('truetype');font-weight:600 900;font-style:normal}
-@font-face{font-family:'Newsreader';src:url(fonts/Newsreader-Italic.ttf) format('truetype');font-weight:400 900;font-style:italic}
-@font-face{font-family:'Latin Modern Math';src:url(fonts/LatinModernMath.woff2) format('woff2');font-weight:400 900;font-style:normal}
+@font-face{font-family:'Mulish';src:url(fonts/Mulish-Regular.nm.woff2) format('woff2');font-weight:400 500;font-style:normal}
+@font-face{font-family:'Mulish';src:url(fonts/Mulish-Bold.nm.woff2) format('woff2');font-weight:600 900;font-style:normal}
+@font-face{font-family:'Mulish';src:url(fonts/Mulish-Italic-Regular.nm.woff2) format('woff2');font-weight:400 900;font-style:italic}
+@font-face{font-family:'Newsreader';src:url(fonts/Newsreader-Regular.nm.woff2) format('woff2');font-weight:400 500;font-style:normal}
+@font-face{font-family:'Newsreader';src:url(fonts/Newsreader-Bold.nm.woff2) format('woff2');font-weight:600 900;font-style:normal}
+@font-face{font-family:'Newsreader';src:url(fonts/Newsreader-Italic.nm.woff2) format('woff2');font-weight:400 900;font-style:italic}
+@font-face{font-family:'Latin Modern Math';src:url(fonts/LatinModernMath.nm.woff2) format('woff2');font-weight:400 900;font-style:normal}
 *{box-sizing:border-box}
 body{margin:0;background:#F5F1EA;font-family:'Mulish',system-ui,sans-serif;color:#2B2823;-webkit-text-size-adjust:100%}
 a{color:#5B1A24}a:hover{color:#3E1018}
@@ -256,6 +256,12 @@ button.strongb[data-steps]{white-space:normal;max-width:100%;text-align:left}
 .rvn{font-family:'Newsreader',serif;font-size:22px;color:#5B1A24;min-width:1.4em}
 .rvsrc{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#5E5750}.rvsrc a{color:#5B1A24}
 .rvstem{margin:0;font-size:15px;line-height:1.5;color:#4A443E}
+/* Card NG (27.7 (e), 29.20): topic icons -- the year page's list, a Revise heading and cards, a Do Now item's label */
+.tpt .a.hasic{display:flex;align-items:center;gap:10px}.tic{width:28px;height:28px;flex:none}.tpt .a.mute .tic{opacity:.5}
+.rvhead h1.hasic{display:flex;align-items:center;gap:14px}.rvhic{width:.9em;height:.9em;flex:none}
+.rvic{width:24px;height:24px;flex:none;align-self:center}
+.lab.hasic{display:flex;align-items:center;gap:8px}.dnic{width:22px;height:22px;flex:none}
+.rvparts{margin:0}.rvparts .gpart+.gpart{border-top:1px solid #EFE9E0;padding-top:14px}
 .rvfoot{display:flex;flex-wrap:wrap;align-items:center;gap:18px;margin-top:22px}
 .rtcard{gap:4px}.rtcard .lead{margin:0 0 8px}
 .rtrow{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 18px;padding:12px 0;border-top:1px solid #EFE8DD}

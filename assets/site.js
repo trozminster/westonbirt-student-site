@@ -60,7 +60,7 @@
   }
   // ---- PIN pad
   var LOCK_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"></rect><path d="M8 11V7a4 4 0 0 1 8 0v4"></path></svg>';
-  var LOGO_IMG = '<img class="logo" src="../assets/westonbirt_logo.png" alt="Westonbirt School" width="121" height="80" decoding="async">';   // Card KP job 6 (year pages sit one folder down)
+  var LOGO_IMG = '<img class="logo" src="../assets/westonbirt_logo.png" alt="Westonbirt School" width="121" height="80" decoding="async" loading="lazy">';   // Card KP job 6 (year pages sit one folder down)
   function openPin(onOk) {
     var pin = '', bg = document.createElement('div');
     bg.className = 'pinbg';
@@ -152,11 +152,11 @@
     var KEY = 'wb-student:' + document.body.getAttribute('data-page');
     var st = lget(KEY) || {}; st.open = st.open || {}; st.step = st.step || {}; st.pick = st.pick || {};
     function save() { lset(KEY, st); }
-    var revs = document.querySelectorAll('[data-rev]'), exs = document.querySelectorAll('[data-steps]'), cfus = document.querySelectorAll('.cfu');
+    var revs = document.querySelectorAll('[data-rev]'), exs = document.querySelectorAll('[data-steps]'), exq = document.querySelectorAll('[data-steps]:not([data-cstep])'), cfus = document.querySelectorAll('.cfu');
     function progress() {
-      var total = revs.length + exs.length + cfus.length, done = 0;
+      var total = revs.length + exq.length + cfus.length, done = 0;
       Array.prototype.forEach.call(revs, function (b) { if (st.open[b.getAttribute('data-rev')]) done++; });
-      Array.prototype.forEach.call(exs, function (b) { var id = b.getAttribute('data-steps'); if ((st.step[id] || 0) >= +b.getAttribute('data-n')) done++; });
+      Array.prototype.forEach.call(exq, function (b) { var id = b.getAttribute('data-steps'); if ((st.step[id] || 0) >= +b.getAttribute('data-n')) done++; });
       Array.prototype.forEach.call(cfus, function (c) { if (st.pick[c.id] && st.pick[c.id] === c.getAttribute('data-key')) done++; });
       var t = document.getElementById('progtext'), f = document.getElementById('progfill');
       if (t) t.textContent = done + ' of ' + total + ' checked';
@@ -173,7 +173,7 @@
       function draw() {
         var s = st.step[id] || 0;
         Array.prototype.forEach.call(art.querySelectorAll('[data-step]'), function (r) { r.hidden = +r.getAttribute('data-step') > s; });
-        b.textContent = s >= n ? 'Start again' : 'What’s the next step? Show step ' + (s + 1) + ' of ' + n;
+        b.textContent = s >= n ? 'Start again' : (b.hasAttribute('data-cstep') ? '' : 'What’s the next step? ') + 'Show step ' + (s + 1) + ' of ' + n;
       }
       b.addEventListener('click', function () { var s = st.step[id] || 0; st.step[id] = s >= n ? 0 : s + 1; save(); draw(); progress(); });
       draw();
@@ -290,7 +290,11 @@
       var done = 0;
       shown.forEach(function (it) {
         if (it.classList.contains('cfu')) { if (rst.pick[it.id] && rst.pick[it.id] === it.getAttribute('data-key')) done++; }
-        else { var b = it.querySelector('[data-rev]'); if (b && rst.open[b.getAttribute('data-rev')]) done++; }
+        else {          // Card NG: an item is checked once EVERY answer in it is shown (a Checkpoint card has one per part)
+          var bs = it.querySelectorAll('[data-rev]'), all = bs.length > 0;
+          Array.prototype.forEach.call(bs, function (b) { if (!rst.open[b.getAttribute('data-rev')]) all = false; });
+          if (all) done++;
+        }
       });
       var t = document.getElementById('progtext'), f = document.getElementById('progfill');
       if (t) t.textContent = done + ' of ' + shown.length + ' checked';
@@ -365,7 +369,7 @@
         if (nNot) sub += ' \u00B7 <span class="rtsum">' + nNot + ' Not yet</span>';
         var badge = allF && !un ? 'b-future' : (allD ? 'b-done' : 'b-now');
         h += '<div class="tp"><div class="tph"><button class="tprow" type="button" data-t="' + ti + '" aria-expanded="' + ex + '"><span class="badge ' + badge + '">' + esc(t.n) + '</span>' +
-          '<span class="tpt"><span class="a' + (allF && !un ? ' mute' : '') + '">' + esc(t.title) + '</span><span class="b">' + sub + '</span></span>' +
+          '<span class="tpt"><span class="a' + (allF && !un ? ' mute' : '') + (t.ic ? ' hasic' : '') + '">' + (t.ic ? '<svg class="tic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-' + esc(t.ic) + '"/></svg><span>' + esc(t.title) + '</span>' : esc(t.title)) + '</span><span class="b">' + sub + '</span></span>' +
           '<span class="pips">' + core.map(function (s) { return '<span class="pip ' + (s === 'done' ? 'done' : (s === 'today' ? 'now' : '')) + '"></span>'; }).join('') + '</span>' +
           '<span class="chev">' + (ex ? '\u2212' : '+') + '</span></button>' +
           (t.rv && rvOpen(t.rvd) ? '<a class="rvl" href="' + esc(t.rv) + '" aria-label="Revise topic ' + esc(t.n) + '">Revise</a>' : '') + '</div>';

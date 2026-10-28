@@ -34,6 +34,11 @@ if (html) { out += (sub ? '<sub>' : '<sup>') + mathSpans(body, sm, 1) + (sub ? '
 out += '<tspan dy="' + n1(d0 + (sub ? dn : -up)) + '" font-size="' + sm + '">' + mathSpans(body, sm) + '</tspan>';
 back = sub ? -dn : up; continue;
 }
+if (s.slice(i, i + 5) === 'frac{') {        // Card NV (31.11): frac{a}{b} is a stacked fraction
+var fq = fracAt(s, i); i = fq[2];
+if (html) { out += '<span class="wba-fr"><span>' + mathSpans(fq[0], size, 1) + '</span><span>' + mathSpans(fq[1], size, 1) + '</span></span>'; continue; }
+put(plainMath(fq[0]) + '/' + plainMath(fq[1])); continue;   // a picture label: g.frac stacks it; a caption: capFracs
+}
 if (s.slice(i, i + 5) === 'sqrt{') {        // Card MQ (31.8, MS b2 E1): sqrt{...} is a square root
 var e = s.indexOf('}', i + 5); if (e < 0) e = s.length;
 var rad = s.slice(i + 5, e); i = e + 1;
@@ -85,6 +90,60 @@ var dy = drop ? ' dy="' + drop + '"' : ''; drop = 0;
 if (k % 2) { var m = mathSpans(part, size * 1.12); drop = LIFT; return '<tspan' + dy + ' font-family="' + MATH + '" font-size="' + n1(size * 1.12) + '">' + m + '</tspan>'; }
 return '<tspan' + dy + '>' + esc(part) + '</tspan>';
 }).join('');
+}
+function fracAt(s, i) {                       // frac{a}{b} at s[i]: [a, b, the index after it]
+var e = s.indexOf('}', i + 5); if (e < 0) e = s.length;
+var a = s.slice(i + 5, e), b = '', f = e + 1;
+if (s[e + 1] === '{') { f = s.indexOf('}', e + 2); if (f < 0) f = s.length; b = s.slice(e + 2, f); f++; }
+return [a, b, f];
+}
+var MET = null;
+function advOf(t, size, face) {               // face 'p' (Mulish) or 'm' (Latin Modern Math); units of the size
+var w = 0, tb = MET && MET[face];
+for (var c of t) w += tb && tb[c] != null ? tb[c] / 1000 : face === 'm' ? (ADV[c] || 0.5) : 0.55;
+return w * size;
+}
+function spanW(svg, size, face) {             // the advance of mathSpans' output, tspans' sizes and faces followed
+var st = [[size, face]], w = 0, re = /<tspan([^>]*)>|<\/tspan>|([^<]+)/g, m;
+while ((m = re.exec(svg))) {
+var top = st[st.length - 1];
+if (m[0] === '</tspan>') { if (st.length > 1) st.pop(); continue; }
+if (m[2] == null) {
+var z = /font-size="([0-9.]+)"/.exec(m[1]), f = /font-family="([^"]*)"/.exec(m[1]);
+st.push([z ? +z[1] : top[0], f ? (/Mulish/.test(f[1]) ? 'p' : 'm') : top[1]]); continue;
+}
+w += advOf(m[2].replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&apos;/g, "'").replace(/&amp;/g, '&'), top[0], top[1]);
+}
+return w;
+}
+function capFracs(g, cap, cx, y, z) {
+var zm = n1(z * 1.12), zf = n1(zm * 0.82), P = [], tot = 0, bar = y - 0.25 * zm;   // the bar on the maths axis
+function mrun(t) { var h = mathSpans(t, zm); P.push({k: 'm', h: h, w: spanW(h, zm, 'm')}); }
+cap.split('$').forEach(function (part, k) {
+if (!part) return;
+if (!(k % 2)) { P.push({k: 'p', h: esc(part), w: advOf(part, z, 'p')}); return; }
+var i = 0, j;
+while ((j = part.indexOf('frac{', i)) >= 0) {
+if (j > i) mrun(part.slice(i, j));
+var q = fracAt(part, j), a = mathSpans(q[0], zf), b = mathSpans(q[1], zf);
+var bw = Math.max(spanW(a, zf, 'm'), spanW(b, zf, 'm')) + 0.24 * zf;
+P.push({k: 'f', a: a, b: b, bw: bw, w: bw + 0.2 * zm}); i = q[2];
+}
+if (i < part.length) mrun(part.slice(i));
+});
+P.forEach(function (p) { tot += p.w; });
+var x = cx - tot / 2;
+P.forEach(function (p) {
+if (p.k === 'p') g._t(x, y, p.h, {a: 's'}, PROSE, z);
+else if (p.k === 'm') g._t(x, y, p.h, {a: 's'}, MATH, zm);
+else {
+var m = x + p.w / 2;
+g._t(m, bar - 0.8 - 0.14 * zf, p.a, {}, MATH, zf);
+g.line(m - p.bw / 2, bar, m + p.bw / 2, bar, {s: 'ink', w: 1.6});
+g._t(m, bar + 0.8 + 0.82 * zf, p.b, {}, MATH, zf);
+}
+x += p.w;
+});
 }
 function Kit() { this.o = []; }
 function paint(o, defS) {
@@ -159,7 +218,7 @@ function inner(A, s, cap) {
 var g = new Kit(), w = A.view[0], h = A.view[1];
 g.o.push('<style>text{stroke:#FFF;stroke-width:4px;stroke-linejoin:round;paint-order:stroke}.nh{stroke:none}</style>');
 A.draw(g, s);
-if (cap) g.rich(w / 2, h - CAP_H / 2 + 8, cap, {z: 22});
+if (cap) { if (cap.indexOf('frac{') >= 0) capFracs(g, cap, w / 2, h - CAP_H / 2 + 5, 22); else g.rich(w / 2, h - CAP_H / 2 + 8, cap, {z: 22}); }
 return g.out();
 }
 function svg(A, s, cap, opt) {
@@ -173,8 +232,21 @@ function frames(A, opt) {                      // the slide's frames, one per st
 return A.steps.map(function (st, k) { var s = stepState(A, k), c = capAt(A, k, s); return {cap: c, svg: svg(A, s, c, opt)}; });
 }
 var REG = {};
+function unstop(c) {
+if (typeof c !== 'string') return c;
+var m = /^([\s\S]*?)(\$?)\.(\s*)$/.exec(c);
+if (!m) return c;
+var b = m[1], n = /[0-9][0-9.]*$/.exec(b);
+if (/frac\{[^{}]*\}\{[^{}]*\}$/.test(b) || (n && !/[\^_]$/.test(b.slice(0, n.index)))) return b + m[2] + m[3];
+return c;
+}
 function def(A) {
 if (!A.steps || A.steps.length < 3 || A.steps.length > 8) throw new Error(A.id + ': an animation has 3-8 steps');
+A.steps.forEach(function (st) {
+var c = st.cap;
+st.cap = typeof c === 'function' ? function (s) { return unstop(c(s)); } : unstop(c);
+});
+if (A.cap) { var c0 = A.cap; A.cap = function (s) { return unstop(c0(s)); }; }
 REG[A.id] = A;
 if (G.document) mountAll();
 }
@@ -187,6 +259,7 @@ var CSS = '.wba{margin:0;background:#FFF;border-radius:18px;padding:16px;display
 '.wba-cap{margin:0;font-size:16px;line-height:1.5;text-align:center;min-height:3em}.wba-m{font-family:' + MATH + ';font-size:1.12em;white-space:nowrap}' +
 '.wba-rt{white-space:nowrap}.wba-rt svg{display:inline-block;width:.6em;height:1.2em;vertical-align:-.28em;fill:none;stroke:currentColor;stroke-width:1.2;overflow:visible}' +
 '.wba-rd{border-top:.06em solid currentColor;padding:.08em .08em 0 .04em}' +
+'.wba-fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;font-size:.82em;line-height:1.2;margin:0 .12em}.wba-fr>span:first-child{border-bottom:.07em solid currentColor;padding:0 .12em}' +
 '.wba label{display:flex;align-items:center;gap:12px;font-size:15px}.wba input{flex:1;min-width:0;accent-color:#5B1A24;min-height:32px}' +
 '.wba output{min-width:3.2em;text-align:right;font-variant-numeric:tabular-nums}' +
 '.wba-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}';
@@ -210,6 +283,10 @@ if (ch === '^' || ch === '_') {
 var sc = script(t, i), map = ch === '^' ? SUPS : SUBS, b = plainMath(sc[0]), r = '';
 for (var k = 0; k < b.length && r != null; k++) r = map[b[k]] ? r + map[b[k]] : null;
 out += r != null && b ? r : ch + (b.length > 1 ? '(' + b + ')' : b); i = sc[1]; continue;
+}
+if (t.slice(i, i + 5) === 'frac{') {        // Card NV (31.11): frac{a}{b} reads a/b, a part with a space or sign bracketed
+var fq = fracAt(t, i); i = fq[2];
+out += [fq[0], fq[1]].map(function (p) { p = plainMath(p); return /[ +\-×÷=]/.test(p) && !/^\([^()]*\)$/.test(p) ? '(' + p + ')' : p; }).join('/'); continue;
 }
 if (t.slice(i, i + 5) === 'sqrt{') {
 var e = t.indexOf('}', i + 5); if (e < 0) e = t.length;
@@ -314,8 +391,15 @@ function mathSpansHTML(s) {
 var w = Math.max(44, Math.ceil(mathAdv(s.replace(/'/g, ''), 22) * 0.92 + 6));
 return '<svg width="' + (w === 44 ? '2.2' : n1(w / 20)) + 'em" height="1.4em" viewBox="0 0 ' + w + ' 28" aria-hidden="true"><text x="2" y="21" font-family="' + MATH + '" font-size="22">' + mathSpans(s, 22) + '</text></svg>';
 }
+function num(v) {
+var r = Math.round(v);
+if (Math.abs(v - r) < 1e-9) return String(r);
+for (var d = 1; d <= 2; d++) { var p = Math.pow(10, d), q = Math.round(v * p) / p; if (Math.abs(v - q) < 1e-9) return q.toFixed(d); }
+var t = (Math.round(v * 100) / 100).toFixed(2);
+return t === '-0.00' ? '0.00' : t;
+}
 G.WBA = {def: def, svg: svg, frames: frames, stepState: stepState, capAt: capAt, reg: REG, C: C, mathSpans: mathSpans, plain: plain,
-mathAdv: mathAdv};
+mathAdv: mathAdv, num: num, metrics: function (t) { MET = t; }};
 var q = G.WBQ || [];
 G.WBQ = {push: def};
 q.forEach(def);

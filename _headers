@@ -1,0 +1,11 @@
+# Card NM (conventions 29.23): content-named and ?v=-stamped files never change under one URL.
+/img/*
+  Cache-Control: public, max-age=31536000, immutable
+/assets/site.css
+  Cache-Control: public, max-age=31536000, immutable
+/assets/site.js
+  Cache-Control: public, max-age=31536000, immutable
+/assets/wba.js
+  Cache-Control: public, max-age=31536000, immutable
+/assets/count.*
+  Cache-Control: public, max-age=31536000, immutable
