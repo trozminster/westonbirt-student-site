@@ -238,6 +238,16 @@
       said.innerHTML = 'You said ‘' + (notYet.length ? 'Not yet' : 'Nearly') + '’ on ' + andList(first) + ' — start there. ' +
         (first.length === 1 ? 'Its questions come first.' : 'Their questions come first.');
     }
+    (function () {
+      var tj = document.getElementById('nytry'); if (!tj || !notYet.length) return;
+      var T; try { T = JSON.parse(tj.textContent); } catch (e) { return; }
+      var rows = notYet.filter(function (l) { return T[l]; }).map(function (l) {
+        return '<div class="nytry"><span class="nytl">Try these first for ' + esc(l) + ':</span>' + T[l].map(function (r) {
+          return '<a href="' + esc(r[0]) + '"><span class="nytag">' + esc(r[1]) + '</span> ' + esc(r[2]) + ' ' + esc(r[3]) + '</a>';
+        }).join('') + '</div>';
+      });
+      if (rows.length) said.insertAdjacentHTML('beforeend', rows.join(''));
+    })();
     function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
     // interleave: one item from each lesson in turn (the lessons in a fresh random order each round)
     function interleave(items, k) {

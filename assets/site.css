@@ -284,3 +284,13 @@ button.strongb[data-steps]{white-space:normal;max-width:100%;text-align:left}
 .rvh{font-size:14px;font-weight:800;color:#5B1A24;text-decoration:none;min-height:36px;display:inline-flex;align-items:center}
 .rvh.off{color:#8C847A;font-weight:700}
 @media (max-width:640px){.rvl{margin-right:10px;padding:6px 10px}.hth{padding:10px 16px}.rtbtns{width:100%}}
+/* Card NY (29.25): "Builds on and leads to" on a lesson page; "Try these first" on a Revise page */
+.ny .sh h2{font-size:24px}.nycol{gap:10px}
+.nyl{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px;font-size:15px;line-height:1.45}
+.nyl li{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:baseline}
+.nytag{flex:none;min-width:3.4em;text-align:center;font-weight:800;font-size:12px;background:#F3E6E7;color:#5B1A24;border-radius:6px;padding:2px 8px}
+.nyl a{flex:1 1 12em;min-width:0;color:#5B1A24;font-weight:700;text-decoration:underline;text-underline-offset:3px}.nyl a:hover{color:#2B2823}
+.nyt{flex:1 1 12em;min-width:0;color:#5E5750}.nyid{font-weight:800}
+.nyd{font-size:13px;color:#5E5750;white-space:nowrap}
+.nytry{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;margin-top:10px;font-weight:600}
+.nytry .nytl{font-weight:800}.nytry a{color:inherit;text-underline-offset:3px}.rvsaid .nytag{background:#FFF}
