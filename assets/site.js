@@ -201,6 +201,15 @@
       var box = document.getElementById(b.getAttribute('data-more'));
       b.addEventListener('click', function () { box.hidden = !box.hidden; b.setAttribute('aria-expanded', box.hidden ? 'false' : 'true'); b.textContent = box.hidden ? 'Read more' : 'Show less'; });
     });
+    Array.prototype.forEach.call(document.querySelectorAll('[data-sq]'), function (b) {      // Card OE (29.28)
+      var id = b.getAttribute('data-sq'), box = document.getElementById(id), k = 'wb-support:' + document.body.getAttribute('data-page') + ':' + id;
+      function draw(o) { box.hidden = !o; b.setAttribute('aria-expanded', o ? 'true' : 'false'); b.querySelector('.sqc').textContent = o ? '\u25B4' : '\u25BE'; }
+      draw(sget(k) === '1');
+      b.addEventListener('click', function () { var o = box.hidden; sset(k, o ? '1' : null); draw(o); });
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('.sqb'), function (s) {
+      s.addEventListener('click', function () { s.classList.add('open'); s.setAttribute('aria-label', 'Blank, checked'); });
+    });
     wireRatings();
     progress();
     return;
@@ -232,7 +241,7 @@
     var have = {}; pool.forEach(function (it) { have[it.getAttribute('data-lid')] = 1; });
     notYet = notYet.filter(function (l) { return have[l]; }); nearly = nearly.filter(function (l) { return have[l]; });
     var first = notYet.length ? notYet : nearly, said = document.getElementById('rvsaid');
-    function andList(a) { var s = a.map(function (l) { return '<a href="' + esc(l) + '.html">' + esc(l) + '</a>'; }); return s.length > 1 ? s.slice(0, -1).join(', ') + ' and ' + s[s.length - 1] : s[0]; }
+    function andList(a) { var s = a.map(function (l) { return '<a translate="no" class="notranslate" href="' + esc(l) + '.html">' + esc(l) + '</a>'; }); return s.length > 1 ? s.slice(0, -1).join(', ') + ' and ' + s[s.length - 1] : s[0]; }
     if (first.length) {
       said.hidden = false; if (!notYet.length) said.className = 'rvsaid rvnear';
       said.innerHTML = 'You said ‘' + (notYet.length ? 'Not yet' : 'Nearly') + '’ on ' + andList(first) + ' — start there. ' +
@@ -243,7 +252,7 @@
       var T; try { T = JSON.parse(tj.textContent); } catch (e) { return; }
       var rows = notYet.filter(function (l) { return T[l]; }).map(function (l) {
         return '<div class="nytry"><span class="nytl">Try these first for ' + esc(l) + ':</span>' + T[l].map(function (r) {
-          return '<a href="' + esc(r[0]) + '"><span class="nytag">' + esc(r[1]) + '</span> ' + esc(r[2]) + ' ' + esc(r[3]) + '</a>';
+          return '<a href="' + esc(r[0]) + '"><span class="nytag notranslate" translate="no">' + esc(r[1]) + '</span> ' + esc(r[2]) + ' ' + esc(r[3]) + '</a>';
         }).join('') + '</div>';
       });
       if (rows.length) said.insertAdjacentHTML('beforeend', rows.join(''));
@@ -333,7 +342,7 @@
     document.getElementById('tiles').innerHTML = yds.map(function (y) {
       var ls = lessonsOf(y), td = ls.filter(function (l) { return l.date === T; })[0];
       var past = ls.filter(function (l) { return l.date && l.date < T; }), last = td || past[past.length - 1];
-      return '<a class="tile" href="' + y.key + '/index.html"><span class="big">' + esc(y.short) + '</span><span class="nm">' + esc(y.name) + '</span>' +
+      return '<a class="tile" href="' + y.key + '/index.html"><span class="big notranslate" translate="no">' + esc(y.short) + '</span><span class="nm">' + esc(y.name) + '</span>' +
         '<span class="foot"><span class="tk">' + (td ? 'TODAY' : 'LATEST') + '</span><span class="tl">' + (last ? esc(last.id + '  ' + last.title) : 'No lessons yet') + '</span></span></a>';
     }).join('');
     return;
@@ -358,7 +367,7 @@
         '<span class="tid">' + esc(feature.id) + ' \u00B7 ' + esc(feature.topic) + '</span><span class="tt">' + esc(feature.title) + '</span><span class="go">Open lesson \u2192</span></a>';
       else h += '<div class="today"><span class="tk">FIRST LESSON</span><span class="tt">Not taught yet</span></div>';
       h += '<div class="catch"><span class="ck">CATCH UP</span>' + (recent.length ? recent.map(function (r) {
-        return '<a class="crow" href="' + esc(r.id) + '.html"><span class="i">' + esc(r.id) + '</span><span class="t">' + esc(r.title) + '</span><span class="w">' + fmt(r.date) + '</span></a>';
+        return '<a class="crow" href="' + esc(r.id) + '.html"><span class="i"><span translate="no" class="notranslate">' + esc(r.id) + '</span>' + '</span><span class="t">' + esc(r.title) + '</span><span class="w">' + fmt(r.date) + '</span></a>';
       }).join('') : '<span class="w">Nothing to catch up on yet.</span>') + '</div></div>';
       h += '<h2 class="yh2">The year, topic by topic</h2><div class="topics">';
       var rated = Ratings.year(Y.key);                 // Card MK: the student's own ratings, this device only
@@ -378,7 +387,7 @@
         var nNot = t.lessons.filter(function (l) { return worst(rated[l[0]] || {}) === 'not'; }).length;   // Card MK
         if (nNot) sub += ' \u00B7 <span class="rtsum">' + nNot + ' Not yet</span>';
         var badge = allF && !un ? 'b-future' : (allD ? 'b-done' : 'b-now');
-        h += '<div class="tp"><div class="tph"><button class="tprow" type="button" data-t="' + ti + '" aria-expanded="' + ex + '"><span class="badge ' + badge + '">' + esc(t.n) + '</span>' +
+        h += '<div class="tp"><div class="tph"><button class="tprow" type="button" data-t="' + ti + '" aria-expanded="' + ex + '"><span translate="no" class="notranslate badge ' + badge + '">' + esc(t.n) + '</span>' +
           '<span class="tpt"><span class="a' + (allF && !un ? ' mute' : '') + (t.ic ? ' hasic' : '') + '">' + (t.ic ? '<svg class="tic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-' + esc(t.ic) + '"/></svg><span>' + esc(t.title) + '</span>' : esc(t.title)) + '</span><span class="b">' + sub + '</span></span>' +
           '<span class="pips">' + core.map(function (s) { return '<span class="pip ' + (s === 'done' ? 'done' : (s === 'today' ? 'now' : '')) + '"></span>'; }).join('') + '</span>' +
           '<span class="chev">' + (ex ? '\u2212' : '+') + '</span></button>' +
@@ -387,11 +396,11 @@
         if (ex) {
           h += '<div class="lsn">' + t.lessons.map(function (l, i) {
             var s = states[i], open = s !== 'future' || un;
-            if (s === 'extra') return '<a class="lrow" href="' + esc(l[0]) + '.html"><span class="i">' + esc(l[0]) + '</span><span class="t">' + esc(l[1]) + '</span><span class="w">Extra</span>' +
+            if (s === 'extra') return '<a class="lrow" href="' + esc(l[0]) + '.html"><span class="i"><span translate="no" class="notranslate">' + esc(l[0]) + '</span>' + '</span><span class="t">' + esc(l[1]) + '</span><span class="w">Extra</span>' +
               '<span class="chip c-extra">Extra — not taught in class</span></a>';
-            if (open) return '<a class="lrow" href="' + esc(l[0]) + '.html"><span class="i">' + esc(l[0]) + rpip(l[0]) + '</span><span class="t">' + esc(l[1]) + '</span><span class="w">' + fmt(l[2]) + '</span>' +
+            if (open) return '<a class="lrow" href="' + esc(l[0]) + '.html"><span class="i"><span translate="no" class="notranslate">' + esc(l[0]) + '</span>' + rpip(l[0]) + '</span><span class="t">' + esc(l[1]) + '</span><span class="w">' + fmt(l[2]) + '</span>' +
               '<span class="chip ' + (l[3] ? 'c-soon' : (s === 'today' ? 'c-today' : (s === 'done' ? 'c-done' : 'c-open'))) + '">' + (l[3] ? 'Coming soon' : (s === 'today' ? 'Today' : (s === 'done' ? 'Done' : 'Open'))) + '</span></a>';
-            return '<button class="lrow shut" type="button" data-lock="' + esc(l[0]) + '"><span class="i">' + esc(l[0]) + '</span><span class="t">' + esc(l[1]) + '</span><span class="w">' + fmt(l[2]) + '</span>' +
+            return '<button class="lrow shut" type="button" data-lock="' + esc(l[0]) + '"><span class="i"><span translate="no" class="notranslate">' + esc(l[0]) + '</span>' + '</span><span class="t">' + esc(l[1]) + '</span><span class="w">' + fmt(l[2]) + '</span>' +
               '<span class="c-lock">' + LOCK_SVG + 'Locked</span></button>';
           }).join('') + '</div>';
         }
