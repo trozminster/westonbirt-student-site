@@ -383,12 +383,13 @@
         var core = states.filter(function (s) { return s !== 'extra'; }), firstD = (t.lessons.filter(function (l) { return !l[4]; })[0] || t.lessons[0])[2];
         var allF = core.every(function (s) { return s === 'future'; }), allD = core.every(function (s) { return s === 'done'; });
         var ex = expanded[ti] !== undefined ? expanded[ti] : (t.n === curTopic);
-        var sub = t.lessons.length + (t.lessons.length === 1 ? ' lesson' : ' lessons') + ' \u00B7 ' + (allD ? 'done' : (allF ? 'starts ' + fmt(firstD) : 'in progress'));
+        var allX = !core.length;                       // Card NS Part 0: a topic of Extras only (12B's other chapters)
+        var sub = t.lessons.length + (t.lessons.length === 1 ? ' lesson' : ' lessons') + ' \u00B7 ' + (allX ? 'Extra' : (allD ? 'done' : (allF ? 'starts ' + fmt(firstD) : 'in progress')));
         var nNot = t.lessons.filter(function (l) { return worst(rated[l[0]] || {}) === 'not'; }).length;   // Card MK
         if (nNot) sub += ' \u00B7 <span class="rtsum">' + nNot + ' Not yet</span>';
-        var badge = allF && !un ? 'b-future' : (allD ? 'b-done' : 'b-now');
+        var badge = allX ? 'b-done' : (allF && !un ? 'b-future' : (allD ? 'b-done' : 'b-now'));
         h += '<div class="tp"><div class="tph"><button class="tprow" type="button" data-t="' + ti + '" aria-expanded="' + ex + '"><span translate="no" class="notranslate badge ' + badge + '">' + esc(t.n) + '</span>' +
-          '<span class="tpt"><span class="a' + (allF && !un ? ' mute' : '') + (t.ic ? ' hasic' : '') + '">' + (t.ic ? '<svg class="tic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-' + esc(t.ic) + '"/></svg><span>' + esc(t.title) + '</span>' : esc(t.title)) + '</span><span class="b">' + sub + '</span></span>' +
+          '<span class="tpt"><span class="a' + (allF && !un && !allX ? ' mute' : '') + (t.ic ? ' hasic' : '') + '">' + (t.ic ? '<svg class="tic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-' + esc(t.ic) + '"/></svg><span>' + esc(t.title) + '</span>' : esc(t.title)) + '</span><span class="b">' + sub + '</span></span>' +
           '<span class="pips">' + core.map(function (s) { return '<span class="pip ' + (s === 'done' ? 'done' : (s === 'today' ? 'now' : '')) + '"></span>'; }).join('') + '</span>' +
           '<span class="chev">' + (ex ? '\u2212' : '+') + '</span></button>' +
           (t.rv && rvOpen(t.rvd) ? '<a class="rvl" href="' + esc(t.rv) + '" aria-label="Revise topic ' + esc(t.n) + '">Revise</a>' : '') + '</div>';
@@ -396,8 +397,8 @@
         if (ex) {
           h += '<div class="lsn">' + t.lessons.map(function (l, i) {
             var s = states[i], open = s !== 'future' || un;
-            if (s === 'extra') return '<a class="lrow" href="' + esc(l[0]) + '.html"><span class="i"><span translate="no" class="notranslate">' + esc(l[0]) + '</span>' + '</span><span class="t">' + esc(l[1]) + '</span><span class="w">Extra</span>' +
-              '<span class="chip c-extra">Extra — not taught in class</span></a>';
+            if (s === 'extra') return '<a class="lrow" href="' + esc(l[0]) + '.html"><span class="i"><span translate="no" class="notranslate">' + esc(l[0]) + '</span>' + '</span><span class="t">' + esc(l[1]) + '</span><span class="w">' + (l[5] ? '' : 'Extra') + '</span>' +
+              '<span class="chip c-extra">' + esc(l[5] || 'Extra — not taught in class') + '</span></a>';
             if (open) return '<a class="lrow" href="' + esc(l[0]) + '.html"><span class="i"><span translate="no" class="notranslate">' + esc(l[0]) + '</span>' + rpip(l[0]) + '</span><span class="t">' + esc(l[1]) + '</span><span class="w">' + fmt(l[2]) + '</span>' +
               '<span class="chip ' + (l[3] ? 'c-soon' : (s === 'today' ? 'c-today' : (s === 'done' ? 'c-done' : 'c-open'))) + '">' + (l[3] ? 'Coming soon' : (s === 'today' ? 'Today' : (s === 'done' ? 'Done' : 'Open'))) + '</span></a>';
             return '<button class="lrow shut" type="button" data-lock="' + esc(l[0]) + '"><span class="i"><span translate="no" class="notranslate">' + esc(l[0]) + '</span>' + '</span><span class="t">' + esc(l[1]) + '</span><span class="w">' + fmt(l[2]) + '</span>' +
