@@ -30,6 +30,8 @@ math{white-space:nowrap;-moz-text-size-adjust:none;-webkit-text-size-adjust:100%
 .al{display:grid;grid-template-columns:minmax(0,max-content) auto minmax(0,1fr);align-items:baseline;row-gap:4px}
 .al .all{grid-column:1;text-align:right;white-space:nowrap}.al .ale{grid-column:2}.al .ale math{padding:0 .2778em}
 .al .alr{grid-column:3;text-align:left;white-space:normal;min-width:0}.al .alw{grid-column:1/-1;text-align:left}
+.wk,.wk>.wkl,.wkc,.wkh,.wkb{display:block;text-align:left}.wkc+.wkc,.wkc+.wkl,.wkl+.wkc{margin-top:.4em}
+.wkh{color:#5B1A24}.ans.dark .wkh,.exitans .wkh{color:#DCA83C}.wkb{padding-left:1em;border-left:2px solid rgba(128,128,128,.45);margin-left:.15em}
 .top{background:#5B1A24;color:#FFF}
 .bar{max-width:1120px;margin:0 auto;padding:14px 24px;display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
 .crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:10px;font-weight:800;letter-spacing:.08em;font-size:13px;text-transform:uppercase}
