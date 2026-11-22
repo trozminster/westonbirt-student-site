@@ -116,7 +116,11 @@ w += advOf(m[2].replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&apos;/g, "
 }
 return w;
 }
-function capFracs(g, cap, cx, y, z) {
+function capFracs(g, cap, cx, y, z, o) {
+o = o || {};
+var ts = {a: 's'}, fs = {}, bs = {s: o.f || 'ink', w: 1.6};
+if (o.f) { ts.f = o.f; fs.f = o.f; }
+if (o.op != null) { ts.op = o.op; fs.op = o.op; bs.op = o.op; }
 var zm = n1(z * 1.12), zf = n1(zm * 0.82), P = [], tot = 0, bar = y - 0.25 * zm;   // the bar on the maths axis
 function mrun(t) { var h = mathSpans(t, zm); P.push({k: 'm', h: h, w: spanW(h, zm, 'm')}); }
 cap.split('$').forEach(function (part, k) {
@@ -132,18 +136,19 @@ P.push({k: 'f', a: a, b: b, bw: bw, w: bw + 0.2 * zm}); i = q[2];
 if (i < part.length) mrun(part.slice(i));
 });
 P.forEach(function (p) { tot += p.w; });
-var x = cx - tot / 2;
+var x = o.a === 's' ? cx : o.a === 'e' ? cx - tot : cx - tot / 2;
 P.forEach(function (p) {
-if (p.k === 'p') g._t(x, y, p.h, {a: 's'}, PROSE, z);
-else if (p.k === 'm') g._t(x, y, p.h, {a: 's'}, MATH, zm);
+if (p.k === 'p') g._t(x, y, p.h, ts, PROSE, z);
+else if (p.k === 'm') g._t(x, y, p.h, ts, MATH, zm);
 else {
 var m = x + p.w / 2;
-g._t(m, bar - 0.8 - 0.14 * zf, p.a, {}, MATH, zf);
-g.line(m - p.bw / 2, bar, m + p.bw / 2, bar, {s: 'ink', w: 1.6});
-g._t(m, bar + 0.8 + 0.82 * zf, p.b, {}, MATH, zf);
+g._t(m, bar - 0.8 - 0.14 * zf, p.a, fs, MATH, zf);
+g.line(m - p.bw / 2, bar, m + p.bw / 2, bar, bs);
+g._t(m, bar + 0.8 + 0.82 * zf, p.b, fs, MATH, zf);
 }
 x += p.w;
 });
+return tot;
 }
 function Kit() { this.o = []; }
 function paint(o, defS) {
@@ -179,6 +184,7 @@ this.o.push('<text xml:space="preserve" x="' + n1(x) + '" y="' + n1(y) + '" font
 text: function (x, y, s, o) { var z = (o && o.z) || 20; this._t(x, y, esc(s), o, PROSE, z); },
 math: function (x, y, s, o) { var z = n1(((o && o.z) || 22) * 1.12); this._t(x, y, mathSpans(s, z), o, MATH, z); },
 rich: function (x, y, s, o) { var z = (o && o.z) || 20; this._t(x, y, richSpans(s, z), o, PROSE, z); },
+fracs: function (x, y, s, o) { return capFracs(this, s, x, y, (o && o.z) || 20, o); },
 root: function (x, y, rad, o) {
 o = o || {}; var z = o.z || 22, k = z / 22, c = o.f || 'ink', w = rad ? mathAdv(rad, z) : 8;
 var d = [[x, y - 9 * k], [x + 4 * k, y - 11 * k], [x + 10 * k, y + 4 * k], [x + 17 * k, y - 22 * k], [x + 21 * k + w + 3, y - 22 * k]];
@@ -198,6 +204,12 @@ o = o || {}; var h = 30, w = 22, c = o.f || 'ink';
 this.path('M' + (x - w + 6) + ' ' + (y - h) + 'Q' + (x - w - 4) + ' ' + y + ' ' + (x - w + 6) + ' ' + (y + h), {f: null, s: c, w: 1.8, op: o.op});
 this.path('M' + (x + w - 6) + ' ' + (y - h) + 'Q' + (x + w + 4) + ' ' + y + ' ' + (x + w - 6) + ' ' + (y + h), {f: null, s: c, w: 1.8, op: o.op});
 this.math(x, y - 5, '' + top, {z: o.z || 20, f: c, op: o.op}); this.math(x, y + 23, '' + bot, {z: o.z || 20, f: c, op: o.op});
+},
+underHere: function () { this._ub = this.o.length; },
+under: function (fn) {
+if (this._ub == null) return fn();
+var tail = this.o.splice(this._ub), r = fn();
+this._ub = this.o.length; Array.prototype.push.apply(this.o, tail); return r;
 },
 out: function () { return this.o.join(''); }
 };

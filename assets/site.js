@@ -336,12 +336,15 @@
 
   // ================= HOME =================
   function lessonsOf(y) { var out = []; y.topics.forEach(function (t) { t.lessons.forEach(function (l) { out.push({ id: l[0], title: l[1], date: l[2], topic: t.title, tn: t.n, soon: !!l[3], extra: !!l[4] }); }); }); return out; }
+  // Card PJ (21.10 (s)): Y12's topics are in term-then-topic order, so two teachers' lessons interleave in date; the latest and
+  // catch-up lessons are the latest by DATE (a stable sort: a year already in date order is unchanged)
+  function byDate(ls) { return ls.map(function (l, i) { return [l, i]; }).sort(function (a, b) { return a[0].date < b[0].date ? -1 : a[0].date > b[0].date ? 1 : a[1] - b[1]; }).map(function (x) { return x[0]; }); }
   var tl = document.getElementById('todaylab'); if (tl) tl.textContent = 'Today \u00B7 ' + fmt(todayISO());
   if (kind === 'home') {
     var yds = JSON.parse(document.getElementById('homedata').textContent), T = todayISO();
     document.getElementById('tiles').innerHTML = yds.map(function (y) {
       var ls = lessonsOf(y), td = ls.filter(function (l) { return l.date === T; })[0];
-      var past = ls.filter(function (l) { return l.date && l.date < T; }), last = td || past[past.length - 1];
+      var past = byDate(ls.filter(function (l) { return l.date && l.date < T; })), last = td || past[past.length - 1];
       return '<a class="tile" href="' + y.key + '/index.html"><span class="big notranslate" translate="no">' + esc(y.short) + '</span><span class="nm">' + esc(y.name) + '</span>' +
         '<span class="foot"><span class="tk">' + (td ? 'TODAY' : 'LATEST') + '</span><span class="tl">' + (last ? esc(last.id + '  ' + last.title) : 'No lessons yet') + '</span></span></a>';
     }).join('');
@@ -354,7 +357,7 @@
     var expanded = {};
     function render() {
       var T = todayISO(), un = unlocked(), ls = lessonsOf(Y);
-      var td = ls.filter(function (l) { return l.date === T; })[0], past = ls.filter(function (l) { return l.date && l.date < T; });
+      var td = ls.filter(function (l) { return l.date === T; })[0], past = byDate(ls.filter(function (l) { return l.date && l.date < T; }));
       var feature = td || past[past.length - 1] || null;
       var recent = past.slice(-4).reverse();
       var curTopic = feature ? feature.tn : (Y.topics[0] ? Y.topics[0].n : null);

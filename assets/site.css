@@ -316,3 +316,4 @@ button.strongb[data-steps]{white-space:normal;max-width:100%;text-align:left}
 .sqb::after{content:"?";position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);color:#8A6A0C;font-weight:800}
 .sqb.open{cursor:default}.sqb.open .sqv{visibility:visible}.sqb.open::after{content:none}
 .sqhint{font-size:13px;color:#5E5750;margin:10px 0 0}
+.steps.lg.nocue{grid-template-columns:0 0 minmax(0,max-content) auto minmax(0,max-content) minmax(0,1fr)}.steps.lg.nocue .step::before{display:none}.steps.lg.nocue .cue{padding:0}.steps.lg.nocue .w.wp{padding-left:0}
