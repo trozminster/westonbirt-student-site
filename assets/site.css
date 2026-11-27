@@ -211,6 +211,7 @@ button.strongb[data-steps]{white-space:normal;max-width:100%;text-align:left}
 .tprow{width:100%;text-align:left;border:0;background:#FFF;padding:16px 22px;display:grid;grid-template-columns:48px minmax(0,1fr) auto 24px;gap:14px;align-items:center;min-height:64px}
 .tprow:hover{background:#FBF8F3}
 .badge{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:12px;font-weight:800;font-size:15px}
+.badge .bst{display:flex;flex-direction:column;align-items:center;line-height:1}.badge .bk{font-size:10px;font-weight:700;margin-bottom:2px}
 .b-done{background:#F3E6E7;color:#5B1A24}.b-now{background:#5B1A24;color:#FFF}.b-future{background:#F0EBE3;color:#8C847A}
 .tpt{display:flex;flex-direction:column;gap:3px;min-width:0}.tpt .a{font-size:17px;font-weight:800}.tpt .b{font-size:13px;color:#5E5750}
 .tpt .a.mute{color:#8C847A}

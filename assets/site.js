@@ -374,6 +374,10 @@
       }).join('') : '<span class="w">Nothing to catch up on yet.</span>') + '</div></div>';
       h += '<h2 class="yh2">The year, topic by topic</h2><div class="topics">';
       var rated = Ratings.year(Y.key);                 // Card MK: the student's own ratings, this device only
+      // Card RC (OLE, 27 Nov 2026, 19:59/20:00): a topic number that carries a year part (only Year 12's, which mixes
+      // 12 and 13 chapters: "12.P1", "13.P1") is stacked -- the year small on top, the topic at full size, no dot.
+      function badgeN(n) { n = String(n); var k = n.indexOf('.'); return k < 0 ? esc(n)
+        : '<span class="bst"><span class="bk">' + esc(n.slice(0, k)) + '</span><span class="bn">' + esc(n.slice(k + 1)) + '</span></span>'; }
       function rvOpen(d) { return un || (d && d <= T); }
       Y.topics.forEach(function (t, ti) {
         (Y.hts || []).forEach(function (ht) {          // Card MK: "Revise this half term" heads its half term's topics
@@ -391,7 +395,7 @@
         var nNot = t.lessons.filter(function (l) { return worst(rated[l[0]] || {}) === 'not'; }).length;   // Card MK
         if (nNot) sub += ' \u00B7 <span class="rtsum">' + nNot + ' Not yet</span>';
         var badge = allX ? 'b-done' : (allF && !un ? 'b-future' : (allD ? 'b-done' : 'b-now'));
-        h += '<div class="tp"><div class="tph"><button class="tprow" type="button" data-t="' + ti + '" aria-expanded="' + ex + '"><span translate="no" class="notranslate badge ' + badge + '">' + esc(t.n) + '</span>' +
+        h += '<div class="tp"><div class="tph"><button class="tprow" type="button" data-t="' + ti + '" aria-expanded="' + ex + '"><span translate="no" class="notranslate badge ' + badge + '">' + badgeN(t.n) + '</span>' +
           '<span class="tpt"><span class="a' + (allF && !un && !allX ? ' mute' : '') + (t.ic ? ' hasic' : '') + '">' + (t.ic ? '<svg class="tic" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><use href="#ic-' + esc(t.ic) + '"/></svg><span>' + esc(t.title) + '</span>' : esc(t.title)) + '</span><span class="b">' + sub + '</span></span>' +
           '<span class="pips">' + core.map(function (s) { return '<span class="pip ' + (s === 'done' ? 'done' : (s === 'today' ? 'now' : '')) + '"></span>'; }).join('') + '</span>' +
           '<span class="chev">' + (ex ? '\u2212' : '+') + '</span></button>' +
